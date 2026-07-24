@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة المخزون - Point Market</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' font-weight='bold' fill='%232563eb'>📦</text></svg>">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Login Page -->
+        <div id="loginPage" class="page login-page">
+            <div class="login-container">
+                <div class="login-card">
+                    <div class="login-header">
+                        <div class="app-logo">📦</div>
+                        <h1>Point Market System</h1>
+                        <p>نظام إدارة المخزون المتكامل</p>
+                    </div>
+
+                    <form id="loginForm" class="login-form">
+                        <div class="form-group">
+                            <label for="username">اسم المستخدم</label>
+                            <input type="text" id="username" placeholder="admin / manager / staff" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">كلمة المرور</label>
+                            <input type="password" id="password" placeholder="123456" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="userType">نوع المستخدم</label>
+                            <select id="userType" required>
+                                <option value="admin">مسؤول النظام (Admin)</option>
+                                <option value="manager">مدير (Manager)</option>
+                                <option value="staff">موظف (Staff)</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-large">
+                            دخول النظام
+                        </button>
+                    </form>
+
+                    <div class="login-info">
+                        <p><strong>تجربة سريعة:</strong></p>
+                        <ul>
+                            <li>Username: <code>admin</code> | Password: <code>123456</code></li>
+                            <li>Username: <code>manager</code> | Password: <code>123456</code></li>
+                            <li>Username: <code>staff</code> | Password: <code>123456</code></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="mainApp" class="main-app" style="display: none;">
+            <!-- Sidebar Navigation -->
+            <aside id="sidebar" class="sidebar">
+                <div class="sidebar-header">
+                    <div class="logo">
+                        <span class="logo-icon">📦</span>
+                        <span class="logo-text">Point Market</span>
+                    </div>
+                    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+                </div>
+
+                <nav class="sidebar-nav">
+                    <a href="#" data-page="dashboard" class="nav-link active">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">لوحة التحكم</span>
+                    </a>
+                    <a href="#" data-page="products" class="nav-link">
+                        <span class="nav-icon">📦</span>
+                        <span class="nav-text">المنتجات</span>
+                    </a>
+                    <a href="#" data-page="inventory" class="nav-link">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-text">المخزون</span>
+                    </a>
+                    <a href="#" data-page="branches" class="nav-link">
+                        <span class="nav-icon">🏢</span>
+                        <span class="nav-text">الفروع</span>
+                    </a>
+                    <a href="#" data-page="sales" class="nav-link">
+                        <span class="nav-icon">💰</span>
+                        <span class="nav-text">المبيعات</span>
+                    </a>
+                    <a href="#" data-page="reports" class="nav-link">
+                        <span class="nav-icon">📈</span>
+                        <span class="nav-text">التقارير</span>
+                    </a>
+                    <a href="#" data-page="settings" class="nav-link">
+                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-text">الإعدادات</span>
+                    </a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="user-info" id="userInfo">
+                        <div class="user-avatar">👤</div>
+                        <div class="user-details">
+                            <div class="user-name" id="userName">Admin</div>
+                            <div class="user-role" id="userRole">مسؤول</div>
+                        </div>
+                    </div>
+                    <button id="logoutBtn" class="btn btn-small">تسجيل خروج</button>
+                </div>
+            </aside>
+
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h2 id="pageTitle">لوحة التحكم</h2>
+                    <p id="pageSubtitle" class="subtitle"></p>
+                </div>
+
+                <div class="header-right">
+                    <div class="search-bar">
+                        <input type="text" id="globalSearch" placeholder="🔍 بحث عام..." class="search-input">
+                    </div>
+
+                    <div class="header-actions">
+                        <button id="notificationBtn" class="icon-btn notification-btn">
+                            <span class="icon">🔔</span>
+                            <span class="badge" id="notificationBadge">0</span>
+                        </button>
+
+                        <button id="darkModeToggle" class="icon-btn">
+                            <span class="icon">🌙</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="page active">
+                    <div class="dashboard-grid">
+                        <section class="kpi-section">
+                            <h3>المؤشرات الرئيسية</h3>
+                            <div class="kpi-cards">
+                                <div class="kpi-card">
+                                    <div class="kpi-icon">📦</div>
+                                    <div class="kpi-content">
+                                        <div class="kpi-label">إجمالي المنتجات</div>
+                                        <div class="kpi-value" id="kpiProducts">0</div>
+                                    </div>
+                                </div>
+                                <div class="kpi-card">
+                                    <div class="kpi-icon">🏢</div>
+                                    <div class="kpi-content">
+                                        <div class="kpi-label">عدد الفروع</div>
+                                        <div class="kpi-value" id="kpiBranches">0</div>
+                                    </div>
+                                </div>
+                                <div class="kpi-card">
+                                    <div class="kpi-icon">📊</div>
+                                    <div class="kpi-content">
+                                        <div class="kpi-label">قيمة المخزون</div>
+                                        <div class="kpi-value" id="kpiInventoryValue">0</div>
+                                    </div>
+                                </div>
+                                <div class="kpi-card">
+                                    <div class="kpi-icon">💰</div>
+                                    <div class="kpi-content">
+                                        <div class="kpi-label">إجمالي المبيعات</div>
+                                        <div class="kpi-value" id="kpiSales">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="charts-section">
+                            <div class="chart-container">
+                                <h3>توزيع المنتجات</h3>
+                                <canvas id="productsChart"></canvas>
+                            </div>
+                            <div class="chart-container">
+                                <h3>توزيع المبيعات</h3>
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </section>
+
+                        <section class="alerts-section">
+                            <h3>التنبيهات الأخيرة</h3>
+                            <div id="alertsList" class="alerts-list">
+                                <div class="empty-state">لا توجد تنبيهات حالياً</div>
+                            </div>
+                        </section>
+
+                        <section class="ai-section">
+                            <h3>🤖 التوصيات الذكية</h3>
+                            <div id="aiRecommendations" class="recommendations-list">
+                                <div class="empty-state">جاري تحليل البيانات...</div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Products Page -->
+                <div id="productsPage" class="page">
+                    <div class="page-header">
+                        <h2>إدارة المنتجات</h2>
+                        <button id="addProductBtn" class="btn btn-primary">+ منتج جديد</button>
+                    </div>
+
+                    <div class="filters-section">
+                        <input type="text" id="productSearch" placeholder="🔍 بحث عن منتج..." class="search-input">
+                        <select id="categoryFilter" class="filter-select">
+                            <option value="">جميع الفئات</option>
+                        </select>
+                    </div>
+
+                    <div id="productsTable" class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>اسم المنتج</th>
+                                    <th>الفئة</th>
+                                    <th>السعر</th>
+                                    <th>التكلفة</th>
+                                    <th>الهامش</th>
+                                    <th>الحد الأدنى</th>
+                                    <th>الحد الأقصى</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsList">
+                                <tr><td colspan="9" class="text-center">جاري تحميل البيانات...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Inventory Page -->
+                <div id="inventoryPage" class="page">
+                    <div class="page-header">
+                        <h2>إدارة المخزون</h2>
+                        <button id="exportInventoryBtn" class="btn btn-secondary">تصدير</button>
+                    </div>
+
+                    <div class="filters-section">
+                        <input type="text" id="inventorySearch" placeholder="🔍 بحث..." class="search-input">
+                        <select id="branchFilter" class="filter-select">
+                            <option value="">جميع الفروع</option>
+                        </select>
+                        <select id="statusFilter" class="filter-select">
+                            <option value="">جميع الحالات</option>
+                            <option value="low">منخفض</option>
+                            <option value="balanced">متوازن</option>
+                            <option value="high">زائد</option>
+                        </select>
+                    </div>
+
+                    <div id="inventoryTable" class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>المنتج</th>
+                                    <th>الفرع</th>
+                                    <th>الكمية الحالية</th>
+                                    <th>الحد الأدنى</th>
+                                    <th>الحد الأقصى</th>
+                                    <th>الحالة</th>
+                                    <th>آخر تحديث</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryList">
+                                <tr><td colspan="9" class="text-center">جاري تحميل البيانات...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Branches Page -->
+                <div id="branchesPage" class="page">
+                    <div class="page-header">
+                        <h2>إدارة الفروع</h2>
+                    </div>
+
+                    <div class="branches-container">
+                        <div id="branchesList" class="branches-grid">
+                            <div class="loading">جاري تحميل الفروع...</div>
+                        </div>
+                        <div id="branchMap" class="branch-map"></div>
+                    </div>
+                </div>
+
+                <!-- Sales Page -->
+                <div id="salesPage" class="page">
+                    <div class="page-header">
+                        <h2>إدارة المبيعات</h2>
+                        <button id="newInvoiceBtn" class="btn btn-primary">+ فاتورة جديدة</button>
+                    </div>
+
+                    <div id="salesTable" class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>رقم الفاتورة</th>
+                                    <th>التاريخ</th>
+                                    <th>الفرع</th>
+                                    <th>عدد الأصناف</th>
+                                    <th>الإجمالي</th>
+                                    <th>الخصم</th>
+                                    <th>الصافي</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="salesList">
+                                <tr><td colspan="9" class="text-center">جاري تحميل البيانات...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Reports Page -->
+                <div id="reportsPage" class="page">
+                    <div class="page-header">
+                        <h2>التقارير والتحليلات</h2>
+                    </div>
+
+                    <div class="reports-container">
+                        <section class="report-section">
+                            <h3>تقرير المبيعات</h3>
+                            <div id="salesReport"></div>
+                        </section>
+
+                        <section class="report-section">
+                            <h3>تقرير الفروع</h3>
+                            <div id="branchReport"></div>
+                        </section>
+
+                        <section class="report-section">
+                            <h3>التنبؤات</h3>
+                            <div id="forecastReport"></div>
+                        </section>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="settingsPage" class="page">
+                    <div class="page-header">
+                        <h2>الإعدادات</h2>
+                    </div>
+
+                    <div class="settings-container">
+                        <section class="settings-section">
+                            <h3>ملف المستخدم</h3>
+                            <div id="userProfile" class="profile-form"></div>
+                        </section>
+
+                        <section class="settings-section">
+                            <h3>تفضيلات النظام</h3>
+                            <div class="preference-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="darkModeCheckbox">
+                                    الوضع الليلي
+                                </label>
+                            </div>
+                        </section>
+
+                        <section class="settings-section">
+                            <h3>النسخ الاحتياطية</h3>
+                            <button id="backupBtn" class="btn btn-secondary">📥 النسخ الاحتياطية</button>
+                            <button id="restoreBtn" class="btn btn-secondary">📤 استعادة</button>
+                        </section>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Notification Panel -->
+            <div id="notificationPanel" class="notification-panel">
+                <div class="notification-header">
+                    <h3>الإشعارات</h3>
+                    <button class="close-btn" id="closeNotifications">✕</button>
+                </div>
+                <div id="notificationsList" class="notifications-list">
+                    <div class="empty-state">لا توجد إشعارات</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Templates -->
+    <template id="productModalTemplate">
+        <div class="modal" id="productModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>منتج جديد</h2>
+                    <button class="close-btn">✕</button>
+                </div>
+                <form id="productForm" class="modal-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اسم المنتج</label>
+                            <input type="text" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الفئة</label>
+                            <input type="text" name="category" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>السعر</label>
+                            <input type="number" name="price" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>التكلفة</label>
+                            <input type="number" name="cost" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الحد الأدنى للمخزون</label>
+                            <input type="number" name="minStock" required>
+                        </div>
+                        <div class="form-group">
+                            <label>الحد الأقصى للمخزون</label>
+                            <input type="number" name="maxStock" required>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-primary">حفظ</button>
+                        <button type="button" class="btn btn-secondary close-modal">إلغاء</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+
+    <!-- Scripts -->
+    <script src="js/db.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/products.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/branches.js"></script>
+    <script src="js/sales.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/ai-agent.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

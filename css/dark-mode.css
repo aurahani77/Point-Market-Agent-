@@ -1,0 +1,295 @@
+/* ========== Dark Mode Variables ========== */
+:root[data-theme="dark"] {
+    --primary: #3b82f6;
+    --primary-dark: #1e40af;
+    --primary-light: #60a5fa;
+    --secondary: #94a3b8;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --info: #0ea5e9;
+
+    --bg-primary: #1e293b;
+    --bg-secondary: #0f172a;
+    --bg-tertiary: #334155;
+
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-light: #94a3b8;
+
+    --border-color: #334155;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* ========== Dark Mode Transitions ========== */
+body[data-theme="dark"],
+:root[data-theme="dark"] * {
+    transition: background-color var(--transition-normal),
+                color var(--transition-normal),
+                border-color var(--transition-normal);
+}
+
+/* ========== Scrollbar (Dark Mode) ========== */
+:root[data-theme="dark"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+}
+
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary);
+}
+
+/* ========== Charts Dark Mode ========== */
+:root[data-theme="dark"] .chart-container {
+    background-color: var(--bg-primary);
+}
+
+/* ========== Form Elements Dark Mode ========== */
+:root[data-theme="dark"] input,
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] input::placeholder,
+:root[data-theme="dark"] select::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+    color: var(--text-light);
+}
+
+:root[data-theme="dark"] input:focus,
+:root[data-theme="dark"] select:focus,
+:root[data-theme="dark"] textarea:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+/* ========== KPI Cards Dark Mode ========== */
+:root[data-theme="dark"] .kpi-card {
+    background: linear-gradient(135deg,
+        rgba(30, 41, 59, 1) 0%,
+        rgba(15, 23, 42, 1) 100%);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .kpi-icon {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* ========== Alerts/Notifications Dark Mode ========== */
+:root[data-theme="dark"] .alert-item,
+:root[data-theme="dark"] .recommendation-item {
+    background-color: rgba(51, 65, 85, 0.5);
+}
+
+:root[data-theme="dark"] .status-low {
+    background-color: rgba(153, 27, 27, 0.2);
+    color: #fca5a5;
+}
+
+:root[data-theme="dark"] .status-balanced {
+    background-color: rgba(22, 101, 52, 0.2);
+    color: #86efac;
+}
+
+:root[data-theme="dark"] .status-high {
+    background-color: rgba(120, 53, 15, 0.2);
+    color: #fcd34d;
+}
+
+/* ========== Badge Dark Mode ========== */
+:root[data-theme="dark"] .badge {
+    background-color: var(--danger);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 2px var(--bg-primary);
+}
+
+/* ========== Login Page Dark Mode ========== */
+:root[data-theme="dark"] .login-page {
+    background: linear-gradient(135deg,
+        rgba(30, 58, 138, 1) 0%,
+        rgba(15, 23, 42, 1) 100%);
+}
+
+:root[data-theme="dark"] .login-info {
+    background-color: rgba(14, 165, 233, 0.1);
+    border-left-color: var(--info);
+}
+
+/* ========== Code Blocks Dark Mode ========== */
+:root[data-theme="dark"] code {
+    background-color: var(--bg-tertiary);
+    color: #86efac;
+}
+
+/* ========== Button Hover States Dark Mode ========== */
+:root[data-theme="dark"] .btn-secondary {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+:root[data-theme="dark"] .btn-secondary:hover {
+    background-color: #475569;
+}
+
+/* ========== Search Input Dark Mode ========== */
+:root[data-theme="dark"] .search-input {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .search-input:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+/* ========== Tables Dark Mode ========== */
+:root[data-theme="dark"] .data-table thead {
+    background-color: var(--bg-tertiary);
+}
+
+:root[data-theme="dark"] .data-table tbody tr:hover {
+    background-color: rgba(51, 65, 85, 0.5);
+}
+
+/* ========== Cards Dark Mode ========== */
+:root[data-theme="dark"] .card {
+    background-color: var(--bg-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+:root[data-theme="dark"] .card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* ========== Branches Dark Mode ========== */
+:root[data-theme="dark"] .branch-card {
+    background-color: var(--bg-primary);
+    box-shadow: var(--shadow-sm);
+}
+
+:root[data-theme="dark"] .branch-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* ========== Modal Dark Mode ========== */
+:root[data-theme="dark"] .modal {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+:root[data-theme="dark"] .modal-content {
+    background-color: var(--bg-primary);
+}
+
+/* ========== Checkbox Dark Mode ========== */
+:root[data-theme="dark"] input[type="checkbox"] {
+    accent-color: var(--primary-light);
+}
+
+/* ========== Icon Button Hover Dark Mode ========== */
+:root[data-theme="dark"] .icon-btn:hover {
+    background-color: rgba(51, 65, 85, 0.5);
+}
+
+/* ========== Filter Select Dark Mode ========== */
+:root[data-theme="dark"] .filter-select {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .filter-select:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
+
+/* ========== Empty State Dark Mode ========== */
+:root[data-theme="dark"] .empty-state {
+    color: var(--text-light);
+}
+
+/* ========== Action Buttons Dark Mode ========== */
+:root[data-theme="dark"] .btn-edit {
+    background-color: rgba(3, 102, 214, 0.15);
+    color: #93c5fd;
+}
+
+:root[data-theme="dark"] .btn-edit:hover {
+    background-color: rgba(3, 102, 214, 0.25);
+}
+
+:root[data-theme="dark"] .btn-delete {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+}
+
+:root[data-theme="dark"] .btn-delete:hover {
+    background-color: rgba(239, 68, 68, 0.25);
+}
+
+:root[data-theme="dark"] .btn-view {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #86efac;
+}
+
+:root[data-theme="dark"] .btn-view:hover {
+    background-color: rgba(16, 185, 129, 0.25);
+}
+
+/* ========== Notification Panel Dark Mode ========== */
+:root[data-theme="dark"] .notification-panel {
+    background-color: var(--bg-primary);
+    border-left-color: var(--border-color);
+    border-top-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .notification-item {
+    border-bottom-color: var(--border-color);
+}
+
+:root[data-theme="dark"] .notification-item:hover {
+    background-color: rgba(51, 65, 85, 0.5);
+}
+
+:root[data-theme="dark"] .notification-item.unread {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-left-color: var(--primary-light);
+}
+
+/* ========== Settings Dark Mode ========== */
+:root[data-theme="dark"] .settings-section {
+    background-color: var(--bg-primary);
+}
+
+/* ========== Loading Animation Dark Mode ========== */
+:root[data-theme="dark"] .loading {
+    color: var(--text-light);
+}
+
+/* ========== Page Header Dark Mode ========== */
+:root[data-theme="dark"] .page-header {
+    color: var(--text-primary);
+}
+
+/* ========== Close Button Dark Mode ========== */
+:root[data-theme="dark"] .close-btn {
+    color: var(--text-secondary);
+}
+
+:root[data-theme="dark"] .close-btn:hover {
+    color: var(--text-primary);
+}

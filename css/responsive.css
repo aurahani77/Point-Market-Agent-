@@ -1,0 +1,496 @@
+/* ========== Tablet Screens (768px and below) ========== */
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+
+    .main-content {
+        padding: var(--spacing-6);
+    }
+
+    .top-header {
+        padding: 0 var(--spacing-6);
+        flex-wrap: wrap;
+        gap: var(--spacing-4);
+    }
+
+    .header-right {
+        width: 100%;
+        order: 3;
+    }
+
+    .search-bar {
+        max-width: 100%;
+    }
+
+    .kpi-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .charts-section {
+        grid-template-columns: 1fr;
+    }
+
+    .branches-container {
+        grid-template-columns: 1fr;
+    }
+
+    .branch-map {
+        display: none;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ========== Mobile Screens (768px and below) ========== */
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 70px;
+        --header-height: 60px;
+        font-size: 14px;
+    }
+
+    body {
+        font-size: 14px;
+    }
+
+    .main-app {
+        flex-direction: column;
+    }
+
+    /* Sidebar Collapsed */
+    .sidebar {
+        width: var(--sidebar-width);
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-header {
+        height: var(--header-height);
+        padding: var(--spacing-2);
+    }
+
+    .logo-text {
+        display: none;
+    }
+
+    .sidebar-toggle {
+        display: block;
+    }
+
+    .nav-link {
+        justify-content: center;
+        padding: var(--spacing-3) 0;
+        border-right: none;
+        border-bottom: 3px solid transparent;
+    }
+
+    .nav-link.active {
+        border-right: none;
+        border-bottom-color: var(--primary);
+    }
+
+    .nav-text {
+        display: none;
+    }
+
+    .nav-icon {
+        width: auto;
+    }
+
+    .sidebar-footer {
+        padding: var(--spacing-2);
+        gap: var(--spacing-2);
+    }
+
+    .user-info {
+        flex-direction: column;
+        gap: var(--spacing-2);
+    }
+
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+    .user-name,
+    .user-role {
+        display: none;
+    }
+
+    /* Top Header */
+    .top-header {
+        flex-direction: column;
+        gap: var(--spacing-4);
+        padding: var(--spacing-4);
+        height: auto;
+    }
+
+    .header-left h2 {
+        font-size: 1.25rem;
+    }
+
+    .header-right {
+        width: 100%;
+        order: 3;
+        flex-wrap: wrap;
+    }
+
+    .search-bar {
+        max-width: 100%;
+        order: 2;
+    }
+
+    .header-actions {
+        width: 100%;
+        gap: var(--spacing-4);
+    }
+
+    /* Content */
+    .main-content {
+        padding: var(--spacing-4);
+    }
+
+    /* KPI Cards */
+    .kpi-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .kpi-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .kpi-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+
+    /* Buttons */
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .page-header {
+        flex-direction: column;
+        gap: var(--spacing-4);
+    }
+
+    .page-header .btn {
+        width: auto;
+        align-self: flex-end;
+    }
+
+    /* Filters */
+    .filters-section {
+        flex-direction: column;
+    }
+
+    .filter-select,
+    .search-input {
+        width: 100%;
+    }
+
+    /* Tables */
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        font-size: 0.75rem;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: var(--spacing-2) var(--spacing-3);
+    }
+
+    /* Modal */
+    .modal-content {
+        width: 95%;
+        max-width: 100%;
+    }
+
+    .modal-header {
+        padding: var(--spacing-4);
+    }
+
+    .modal-form {
+        padding: var(--spacing-4);
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Notification Panel */
+    .notification-panel {
+        width: 100%;
+        height: 300px;
+        top: auto;
+        bottom: 0;
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+        border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+        animation: slideUp 300ms ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    /* Login Page */
+    .login-container {
+        max-width: 100%;
+        padding: var(--spacing-4);
+    }
+
+    .login-card {
+        padding: var(--spacing-6);
+    }
+
+    .login-header {
+        margin-bottom: var(--spacing-6);
+    }
+
+    .app-logo {
+        font-size: 2.5rem;
+        margin-bottom: var(--spacing-2);
+    }
+
+    .login-header h1 {
+        font-size: 1.25rem;
+    }
+
+    .login-header p {
+        font-size: 0.875rem;
+    }
+
+    /* Charts */
+    .charts-section {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-container canvas {
+        max-height: 250px;
+    }
+
+    /* Branches */
+    .branches-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .branches-container {
+        grid-template-columns: 1fr;
+    }
+
+    /* Settings */
+    .settings-section {
+        padding: var(--spacing-4);
+    }
+
+    /* Action Buttons in Tables */
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .btn-edit,
+    .btn-delete,
+    .btn-view {
+        width: 100%;
+    }
+
+    /* Login Info */
+    .login-info {
+        font-size: 0.75rem;
+    }
+
+    .login-info li {
+        padding: var(--spacing-1) 0;
+    }
+}
+
+/* ========== Small Mobile (480px and below) ========== */
+@media (max-width: 480px) {
+    :root {
+        --spacing-4: 0.75rem;
+        --spacing-6: 1rem;
+        --spacing-8: 1.5rem;
+    }
+
+    body {
+        font-size: 13px;
+    }
+
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1rem; }
+
+    /* Sidebar */
+    .sidebar-nav {
+        padding: var(--spacing-2) 0;
+    }
+
+    /* Top Header */
+    .top-header {
+        padding: var(--spacing-3);
+    }
+
+    .top-header h2 {
+        font-size: 1rem;
+    }
+
+    .header-actions {
+        gap: var(--spacing-3);
+    }
+
+    /* Main Content */
+    .main-content {
+        padding: var(--spacing-3);
+    }
+
+    /* KPI Cards */
+    .kpi-value {
+        font-size: 1.25rem;
+    }
+
+    .kpi-label {
+        font-size: 0.7rem;
+    }
+
+    /* Forms */
+    .form-group {
+        margin-bottom: var(--spacing-4);
+    }
+
+    .login-card {
+        padding: var(--spacing-4);
+    }
+
+    .login-header {
+        margin-bottom: var(--spacing-4);
+    }
+
+    .app-logo {
+        font-size: 2rem;
+    }
+
+    .login-header h1 {
+        font-size: 1.125rem;
+    }
+
+    /* Buttons */
+    .btn-large {
+        padding: var(--spacing-3) var(--spacing-4);
+    }
+
+    /* Notification Panel */
+    .notification-panel {
+        height: 250px;
+    }
+
+    /* Section Spacing */
+    .section {
+        padding: var(--spacing-4);
+        margin-bottom: var(--spacing-6);
+    }
+
+    /* Alert Items */
+    .alert-item {
+        flex-direction: column;
+        gap: var(--spacing-2);
+    }
+
+    .alert-time {
+        align-self: flex-start;
+    }
+
+    /* Modal */
+    .modal-header {
+        padding: var(--spacing-3);
+    }
+
+    .modal-header h2 {
+        font-size: 1.125rem;
+    }
+
+    .modal-form {
+        padding: var(--spacing-3);
+    }
+
+    /* Tables */
+    .data-table {
+        font-size: 0.7rem;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: var(--spacing-1) var(--spacing-2);
+    }
+}
+
+/* ========== Landscape Mode ========== */
+@media (max-height: 500px) {
+    .main-content {
+        padding: var(--spacing-4);
+    }
+
+    .kpi-card {
+        padding: var(--spacing-3);
+    }
+
+    .section {
+        padding: var(--spacing-4);
+        margin-bottom: var(--spacing-4);
+    }
+
+    .chart-container canvas {
+        max-height: 200px;
+    }
+
+    .modal-content {
+        max-height: 95vh;
+    }
+}
+
+/* ========== Print Styles ========== */
+@media print {
+    .sidebar,
+    .top-header,
+    .header-actions,
+    .page-header .btn,
+    .close-btn,
+    .modal,
+    .notification-panel {
+        display: none !important;
+    }
+
+    .main-content {
+        padding: 0;
+    }
+
+    .data-table {
+        font-size: 12px;
+    }
+
+    .page {
+        page-break-after: always;
+    }
+}
+
+/* ========== High Resolution (Retina) ========== */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .shadow-sm {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+}
