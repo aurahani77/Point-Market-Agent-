@@ -10,6 +10,16 @@ body {
     direction: rtl;
 }
 
+/* Exception: Login page should display normally */
+.login-page {
+    direction: ltr !important;
+    text-align: center !important;
+}
+
+.login-page * {
+    direction: rtl;
+}
+
 /* Fix page container alignment */
 .page-container {
     direction: rtl;
