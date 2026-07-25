@@ -1,0 +1,343 @@
+/* ========== Layout & RTL Direction Fixes ========== */
+
+/* Fix main container alignment for RTL */
+html {
+    direction: rtl;
+    text-align: right;
+}
+
+body {
+    direction: rtl;
+}
+
+/* Fix page container alignment */
+.page-container {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix content alignment */
+main {
+    direction: rtl;
+}
+
+/* Fix sidebar alignment */
+.sidebar {
+    direction: rtl;
+    float: right;
+}
+
+.main-content {
+    direction: rtl;
+    margin-right: 250px;
+    margin-left: 0;
+}
+
+/* Fix header alignment */
+.header {
+    direction: rtl;
+}
+
+.header-content {
+    direction: rtl;
+}
+
+/* Fix flex containers for RTL */
+.flex-container,
+.flex-row,
+.flex-column {
+    direction: rtl;
+}
+
+.flex-row {
+    flex-direction: row-reverse;
+}
+
+/* Fix button groups */
+.button-group,
+.action-buttons {
+    direction: rtl;
+    justify-content: flex-end;
+}
+
+/* Fix form layouts */
+.form-group,
+.form-row {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix filters */
+.filters-section {
+    direction: rtl;
+    justify-content: flex-end;
+}
+
+/* Fix dashboard grid for RTL */
+.dashboard-grid,
+.kpi-cards,
+.branches-grid,
+.charts-section,
+.reports-container {
+    direction: rtl;
+}
+
+/* Fix stat rows */
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    direction: rtl;
+    text-align: right;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* Fix metric displays */
+.metric {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--border-color);
+    direction: rtl;
+}
+
+.metric-label {
+    color: var(--text-secondary);
+}
+
+.metric-value {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* Fix report content */
+.report-content {
+    padding: var(--spacing-4);
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    margin-top: var(--spacing-4);
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix report filters */
+.report-filters {
+    display: flex;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+    flex-wrap: wrap;
+    direction: rtl;
+    justify-content: flex-start;
+}
+
+/* Fix labels for RTL */
+label {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix input fields */
+input,
+textarea,
+select {
+    direction: rtl;
+    text-align: right;
+    padding-right: var(--spacing-3);
+    padding-left: var(--spacing-1);
+}
+
+/* Fix specific chart and map containers */
+.chart-container,
+.branch-map {
+    direction: ltr;
+}
+
+.chart-container canvas {
+    direction: ltr;
+}
+
+/* Fix modal alignment */
+.modal-content {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix notifications */
+.notification-item,
+.alert-item {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix breadcrumbs */
+.breadcrumb {
+    direction: rtl;
+}
+
+/* Fix tables */
+table {
+    direction: rtl;
+}
+
+thead,
+tbody {
+    direction: rtl;
+}
+
+th,
+td {
+    text-align: right;
+}
+
+/* Fix floating elements */
+.float-left {
+    float: right !important;
+}
+
+.float-right {
+    float: left !important;
+}
+
+/* Fix margin and padding for RTL */
+.ml-auto {
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.mr-auto {
+    margin-right: auto;
+    margin-left: 0;
+}
+
+.pr-* {
+    padding-right: var(--spacing-*);
+    padding-left: 0;
+}
+
+.pl-* {
+    padding-left: var(--spacing-*);
+    padding-right: 0;
+}
+
+/* Fix dropdown menus */
+.dropdown-menu {
+    right: 0;
+    left: auto;
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix lists */
+ul, ol {
+    direction: rtl;
+    text-align: right;
+    padding-right: 20px;
+    padding-left: 0;
+}
+
+li {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix borders for RTL */
+.border-left {
+    border-right: 1px solid var(--border-color);
+    border-left: none;
+}
+
+.border-right {
+    border-left: 1px solid var(--border-color);
+    border-right: none;
+}
+
+/* Fix badges and labels */
+.badge,
+.label {
+    direction: rtl;
+    text-align: center;
+}
+
+/* Fix scrollbars position (webkit browsers) */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* Ensure consistency across all text directions */
+p, span, div, a {
+    direction: rtl;
+    text-align: right;
+}
+
+/* Fix specific components that should be LTR */
+.chart-container,
+.chart-container > div,
+pre,
+code {
+    direction: ltr;
+    text-align: left;
+}
+
+/* Media queries for responsive RTL */
+@media (max-width: 768px) {
+    .main-content {
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    .sidebar {
+        position: absolute;
+        right: -100%;
+    }
+
+    .sidebar.active {
+        right: 0;
+    }
+}
+
+/* Fix button text alignment */
+button,
+.btn {
+    direction: rtl;
+    text-align: center;
+}
+
+/* Ensure all containers respect RTL */
+.container,
+.wrapper,
+.container-fluid {
+    direction: rtl;
+}
+
+/* Fix spacing helpers for RTL */
+.text-right {
+    text-align: left;
+}
+
+.text-left {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}

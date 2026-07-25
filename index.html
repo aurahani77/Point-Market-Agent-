@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/fix-layout.css">
 
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -554,6 +555,16 @@
     <script src="js/advanced-ai.js"></script>
     <script src="js/seeders.js"></script>
     <script src="js/excel-importer.js"></script>
+    <script src="js/fix-export.js"></script>
     <script src="js/app.js"></script>
+
+    <script>
+        // Initialize Enhanced Exporter after app loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                initializeEnhancedExporter();
+            }, 1000);
+        });
+    </script>
 </body>
 </html>
