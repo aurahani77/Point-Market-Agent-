@@ -79,6 +79,18 @@ class DatabaseManager {
         if (!db.objectStoreNames.contains('settings')) {
             db.createObjectStore('settings', { keyPath: 'key' });
         }
+
+        // Inventory Movements Store
+        if (!db.objectStoreNames.contains('inventoryMovements')) {
+            const movementStore = db.createObjectStore('inventoryMovements', { keyPath: 'id', autoIncrement: true });
+            movementStore.createIndex('inventoryId', 'inventoryId', { unique: false });
+            movementStore.createIndex('timestamp', 'timestamp', { unique: false });
+        }
+
+        // Product Reviews Store
+        if (!db.objectStoreNames.contains('productReviews')) {
+            const reviewStore = db.createObjectStore('productReviews', { keyPath: 'productId' });
+        }
     }
 
     // Generic Methods
@@ -165,7 +177,8 @@ class DatabaseManager {
         const backup = {};
         const storeNames = [
             'users', 'products', 'branches', 'inventory',
-            'sales', 'notifications', 'activityLog', 'settings'
+            'sales', 'notifications', 'activityLog', 'settings',
+            'inventoryMovements', 'productReviews'
         ];
 
         for (const storeName of storeNames) {

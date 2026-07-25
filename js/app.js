@@ -29,6 +29,10 @@ class PointMarketApp {
             await sales.initialize();
             console.log('✓ All data managers initialized');
 
+            // Seed database with sample data
+            const seeder = new SeedersManager(db, products, branches, inventory, sales);
+            await seeder.seedAll();
+
             // Setup UI
             this.setupEventListeners();
             this.setupDarkMode();
