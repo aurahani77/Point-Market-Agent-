@@ -107,6 +107,10 @@
                         <span class="nav-icon">📈</span>
                         <span class="nav-text">التقارير</span>
                     </a>
+                    <a href="#" data-page="ai-intelligence" class="nav-link">
+                        <span class="nav-icon">🤖</span>
+                        <span class="nav-text">الذكاء الاصطناعي</span>
+                    </a>
                     <a href="#" data-page="settings" class="nav-link">
                         <span class="nav-icon">⚙️</span>
                         <span class="nav-text">الإعدادات</span>
@@ -220,7 +224,11 @@
                 <div id="productsPage" class="page">
                     <div class="page-header">
                         <h2>إدارة المنتجات</h2>
-                        <button id="addProductBtn" class="btn btn-primary">+ منتج جديد</button>
+                        <div class="button-group">
+                            <button id="addProductBtn" class="btn btn-primary">+ منتج جديد</button>
+                            <button id="importExcelBtn" class="btn btn-secondary">📥 استيراد من Excel</button>
+                            <button id="exportTemplateBtn" class="btn btn-secondary">📋 تنزيل نموذج</button>
+                        </div>
                     </div>
 
                     <div class="filters-section">
@@ -228,6 +236,39 @@
                         <select id="categoryFilter" class="filter-select">
                             <option value="">جميع الفئات</option>
                         </select>
+                    </div>
+
+                    <!-- Hidden file input for Excel import -->
+                    <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display: none;">
+
+                    <!-- Import Results Modal -->
+                    <div id="importResultsModal" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>📊 نتائج الاستيراد</h3>
+                                <button class="close-btn" onclick="document.getElementById('importResultsModal').style.display='none'">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="importStats" style="margin-bottom: 20px;">
+                                    <div class="stat-row">
+                                        <span>✅ تم استيراده:</span>
+                                        <strong id="successCount">0</strong>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span>❌ فشل:</span>
+                                        <strong id="failedCount">0</strong>
+                                    </div>
+                                    <div class="stat-row">
+                                        <span>⏭️ تم تخطيه:</span>
+                                        <strong id="skippedCount">0</strong>
+                                    </div>
+                                </div>
+                                <div id="importDetails" class="import-details" style="max-height: 300px; overflow-y: auto;"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary" onclick="document.getElementById('importResultsModal').style.display='none'">إغلاق</button>
+                            </div>
+                        </div>
                     </div>
 
                     <div id="productsTable" class="table-responsive">
@@ -361,6 +402,52 @@
                     </div>
                 </div>
 
+                <!-- AI Intelligence Page -->
+                <div id="aiIntelligencePage" class="page">
+                    <div class="page-header">
+                        <h2>🤖 لوحة الذكاء الاصطناعي</h2>
+                        <button class="btn btn-primary" onclick="app.loadAIDashboard()">🔄 تحديث البيانات</button>
+                    </div>
+
+                    <div id="aiContent" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+                        <!-- Forecast Section -->
+                        <div class="ai-card">
+                            <h3>📊 توقعات المبيعات</h3>
+                            <div id="aiForecaust" class="ai-content"></div>
+                        </div>
+
+                        <!-- Risks Section -->
+                        <div class="ai-card">
+                            <h3>⚠️ تقييم المخاطر</h3>
+                            <div id="aiRisks" class="ai-content"></div>
+                        </div>
+
+                        <!-- Inventory Recommendations -->
+                        <div class="ai-card">
+                            <h3>📦 توصيات المخزون</h3>
+                            <div id="aiInventory" class="ai-content"></div>
+                        </div>
+
+                        <!-- Pricing Recommendations -->
+                        <div class="ai-card">
+                            <h3>💲 توصيات التسعير</h3>
+                            <div id="aiPricing" class="ai-content"></div>
+                        </div>
+
+                        <!-- Branch Analysis -->
+                        <div class="ai-card">
+                            <h3>🏢 تحليل الفروع</h3>
+                            <div id="aiBranches" class="ai-content"></div>
+                        </div>
+
+                        <!-- Customer Behavior -->
+                        <div class="ai-card">
+                            <h3>👥 سلوك العملاء</h3>
+                            <div id="aiCustomer" class="ai-content"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Settings Page -->
                 <div id="settingsPage" class="page">
                     <div class="page-header">
@@ -464,7 +551,9 @@
     <script src="js/sales.js"></script>
     <script src="js/reports.js"></script>
     <script src="js/ai-agent.js"></script>
+    <script src="js/advanced-ai.js"></script>
     <script src="js/seeders.js"></script>
+    <script src="js/excel-importer.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

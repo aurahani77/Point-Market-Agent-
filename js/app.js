@@ -148,6 +148,18 @@ class PointMarketApp {
             this.showProductModal();
         });
 
+        domUtils.getElementById('importExcelBtn')?.addEventListener('click', () => {
+            document.getElementById('excelFileInput').click();
+        });
+
+        domUtils.getElementById('exportTemplateBtn')?.addEventListener('click', () => {
+            this.exportProductTemplate();
+        });
+
+        document.getElementById('excelFileInput')?.addEventListener('change', (e) => {
+            this.handleExcelImport(e);
+        });
+
         domUtils.getElementById('productSearch')?.addEventListener('input', (e) => {
             this.filterProducts(e.target.value);
         });
@@ -998,6 +1010,218 @@ class PointMarketApp {
     toggleSidebar() {
         const sidebar = domUtils.getElementById('sidebar');
         domUtils.toggleClass(sidebar, 'collapsed');
+    }
+
+    // ========== Excel Import/Export ==========
+    async handleExcelImport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        try {
+            notificationUtils.showToast('جاري معالجة الملف...', 'info');
+
+            const excelImporter = new ExcelImporterManager(db, products);
+            const data = await excelImporter.parseExcelFile(file);
+
+            // Validate data
+            const validation = excelImporter.validateProductData(data);
+            if (validation.errors.length > 0) {
+                const errorMsg = validation.errors.join('\n');
+                notificationUtils.showToast('أخطاء في البيانات:\n' + errorMsg, 'danger');
+                return;
+            }
+
+            if (validation.warnings.length > 0) {
+                const warningMsg = validation.warnings.join('\n');
+                console.warn('تحذيرات:', warningMsg);
+            }
+
+            // Import products
+            const results = await excelImporter.importProducts(data);
+
+            // Show results
+            this.displayImportResults(results);
+            notificationUtils.showToast(`تم استيراد ${results.success} منتج بنجاح`, 'success');
+
+            // Reload products list
+            this.loadProductsPage();
+
+            // Reset file input
+            event.target.value = '';
+        } catch (error) {
+            console.error('خطأ في الاستيراد:', error);
+            notificationUtils.showToast('خطأ: ' + error.message, 'danger');
+        }
+    }
+
+    displayImportResults(results) {
+        const modal = domUtils.getElementById('importResultsModal');
+        domUtils.getElementById('successCount').textContent = results.success;
+        domUtils.getElementById('failedCount').textContent = results.failed;
+        domUtils.getElementById('skippedCount').textContent = results.skipped;
+
+        const detailsHTML = results.details.map(detail => {
+            const statusClass = detail.status === 'success' ? 'success' : detail.status === 'failed' ? 'failed' : 'skipped';
+            const statusIcon = detail.status === 'success' ? '✅' : detail.status === 'failed' ? '❌' : '⏭️';
+            return `
+                <div class="detail-item ${statusClass}">
+                    ${statusIcon} الصف ${detail.row}: ${detail.message}
+                    ${detail.name ? ` - ${detail.name}` : ''}
+                </div>
+            `;
+        }).join('');
+
+        domUtils.getElementById('importDetails').innerHTML = detailsHTML;
+        modal.style.display = 'flex';
+    }
+
+    exportProductTemplate() {
+        try {
+            const excelImporter = new ExcelImporterManager(db, products);
+            excelImporter.exportTemplate();
+            notificationUtils.showToast('تم تنزيل النموذج بنجاح', 'success');
+        } catch (error) {
+            notificationUtils.showToast('خطأ: ' + error.message, 'danger');
+        }
+    }
+
+    // ========== AI Intelligence Dashboard ==========
+    async loadAIDashboard() {
+        const aiAgent = new AdvancedAIAgent(db, products, inventory, sales, branches);
+        const dashboard = await aiAgent.getAIDashboard();
+
+        // Display forecast
+        this.displayForecast(dashboard.forecast);
+
+        // Display risks
+        this.displayRisks(dashboard.risks);
+
+        // Display recommendations
+        this.displayInventoryRecommendations(dashboard.inventory);
+        this.displayPricingRecommendations(dashboard.pricing);
+        this.displayBranchAnalysis(dashboard.branches);
+        this.displayCustomerBehavior(dashboard.customer);
+
+        notificationUtils.showToast('✅ تم تحديث لوحة الذكاء الاصطناعي', 'success');
+    }
+
+    displayForecast(forecast) {
+        const content = domUtils.getElementById('aiForecaust');
+        const avgForecast = forecast.forecast.length > 0
+            ? (forecast.forecast.reduce((a, b) => a + b, 0) / forecast.forecast.length).toFixed(0)
+            : 0;
+
+        content.innerHTML = `
+            <div class="metric">
+                <span class="metric-label">المتوسط المتوقع (30 يوم):</span>
+                <span class="metric-value">${numberUtils.formatCurrency(avgForecast)}</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">الثقة:</span>
+                <span class="metric-value">${forecast.confidence}%</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">المتوسط اليومي:</span>
+                <span class="metric-value">${numberUtils.formatCurrency(forecast.avgDaily)}</span>
+            </div>
+        `;
+    }
+
+    displayRisks(risks) {
+        const content = domUtils.getElementById('aiRisks');
+        if (risks.length === 0) {
+            content.innerHTML = '<p style="color: var(--success); font-weight: 600;">✅ لا توجد مخاطر</p>';
+            return;
+        }
+
+        content.innerHTML = risks.slice(0, 3).map(risk => `
+            <div class="ai-recommendation ${risk.level}">
+                <div class="recommendation-title">${risk.type}: ${risk.title}</div>
+                <div class="recommendation-desc">${risk.description}</div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;">
+                    💡 ${risk.action}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    displayInventoryRecommendations(inventory) {
+        const content = domUtils.getElementById('aiInventory');
+        if (inventory.length === 0) {
+            content.innerHTML = '<p>لا توجد توصيات</p>';
+            return;
+        }
+
+        content.innerHTML = inventory.slice(0, 3).map(rec => `
+            <div class="ai-recommendation ${rec.priority}">
+                <div class="recommendation-title">${rec.action}</div>
+                <div class="recommendation-desc">${rec.reason}</div>
+                <div style="font-size: 0.8rem; margin-top: 5px;">📊 ${rec.expectedImpact}</div>
+            </div>
+        `).join('');
+    }
+
+    displayPricingRecommendations(pricing) {
+        const content = domUtils.getElementById('aiPricing');
+        if (pricing.length === 0) {
+            content.innerHTML = '<p>الأسعار محسّنة</p>';
+            return;
+        }
+
+        content.innerHTML = pricing.slice(0, 3).map(rec => `
+            <div class="ai-recommendation">
+                <div class="recommendation-title">${rec.productName}</div>
+                <div class="metric" style="border: none; padding: 5px 0;">
+                    <span>السعر الحالي:</span>
+                    <span>${numberUtils.formatCurrency(rec.currentPrice)}</span>
+                </div>
+                <div class="metric" style="border: none; padding: 5px 0;">
+                    <span>السعر المقترح:</span>
+                    <span style="color: var(--success);">${numberUtils.formatCurrency(rec.suggestedPrice)}</span>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-secondary);">💡 ${rec.reason}</div>
+            </div>
+        `).join('');
+    }
+
+    displayBranchAnalysis(branches) {
+        const content = domUtils.getElementById('aiBranches');
+        content.innerHTML = branches.slice(0, 3).map(branch => `
+            <div class="ai-recommendation" style="border-left-color: var(--info);">
+                <div class="recommendation-title">${branch.branchName}</div>
+                <div class="metric" style="border: none; padding: 3px 0; font-size: 0.9rem;">
+                    <span>الإيراد:</span>
+                    <span>${numberUtils.formatCurrency(branch.totalRevenue)}</span>
+                </div>
+                <div class="metric" style="border: none; padding: 3px 0; font-size: 0.9rem;">
+                    <span>الربح:</span>
+                    <span style="color: ${branch.monthlyProfit > 0 ? 'var(--success)' : 'var(--danger)'}">${numberUtils.formatCurrency(branch.monthlyProfit)}</span>
+                </div>
+                <div style="font-size: 0.8rem; margin-top: 5px;">📊 ${branch.recommendation}</div>
+            </div>
+        `).join('');
+    }
+
+    displayCustomerBehavior(customer) {
+        const content = domUtils.getElementById('aiCustomer');
+        content.innerHTML = `
+            <div class="metric">
+                <span class="metric-label">عدد العملاء:</span>
+                <span class="metric-value">${customer.totalCustomers}</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">متوسط المبلغ:</span>
+                <span class="metric-value">${numberUtils.formatCurrency(customer.avgTransactionValue)}</span>
+            </div>
+            <div style="margin-top: var(--spacing-4); border-top: 1px solid var(--border-color); padding-top: var(--spacing-3);">
+                <div style="font-weight: 600; margin-bottom: var(--spacing-2);">🏆 المنتجات الأكثر مبيعاً:</div>
+                ${customer.mostPopularProducts.map(p => `
+                    <div style="padding: 5px 0; font-size: 0.9rem;">
+                        ${p.name}: <span style="color: var(--primary);">${p.count} وحدة</span>
+                    </div>
+                `).join('')}
+            </div>
+        `;
     }
 }
 

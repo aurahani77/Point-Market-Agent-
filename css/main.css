@@ -356,6 +356,52 @@ code {
     margin: 0;
 }
 
+.button-group {
+    display: flex;
+    gap: var(--spacing-3);
+    flex-wrap: wrap;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-3);
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-2);
+    border-left: 4px solid var(--primary);
+}
+
+.import-details {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-4);
+    background-color: var(--bg-secondary);
+}
+
+.import-details .detail-item {
+    padding: var(--spacing-2);
+    margin-bottom: var(--spacing-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    border-left: 3px solid var(--border-color);
+}
+
+.import-details .detail-item.success {
+    background-color: rgba(16, 185, 129, 0.1);
+    border-left-color: var(--success);
+}
+
+.import-details .detail-item.failed {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-left-color: var(--danger);
+}
+
+.import-details .detail-item.skipped {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-left-color: var(--warning);
+}
+
 /* ========== Buttons ========== */
 .btn {
     padding: var(--spacing-3) var(--spacing-6);
