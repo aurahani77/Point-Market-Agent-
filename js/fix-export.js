@@ -1,323 +1,311 @@
-/* ========== Export Functionality Fix ========== */
-/*
-   This file provides enhanced export functionality
-   - Fixes SheetJS library compatibility
-   - Ensures proper data export to Excel/CSV
-   - Adds missing export methods
-*/
-
-// Enhanced Excel Export Manager
+/* ========== Enhanced Excel Exporter ========== */
 class EnhancedExcelExporter {
-    constructor(db, productsManager, inventory, sales) {
-        this.db = db;
-        this.productsManager = productsManager;
-        this.inventory = inventory;
-        this.sales = sales;
+    constructor() {
         this.checkXLSXLibrary();
     }
 
-    // Check if XLSX library is loaded
     checkXLSXLibrary() {
         if (typeof XLSX === 'undefined') {
-            console.error('⚠️ SheetJS library not loaded. Please ensure it\'s included in index.html');
-            setTimeout(() => {
-                notificationUtils.showToast('⚠️ مكتبة Excel غير محملة. يرجى تحديث الصفحة', 'warning');
-            }, 1000);
+            console.warn('SheetJS library not loaded. Export feature may not work.');
+            return false;
         }
+        return true;
     }
 
-    // Export Products to Excel
-    exportProductsToExcel() {
+    exportSalesReport(report) {
         try {
-            if (typeof XLSX === 'undefined') {
-                throw new Error('SheetJS library not loaded');
-            }
-
-            const products = this.productsManager.products || [];
-
-            if (products.length === 0) {
-                notificationUtils.showToast('❌ لا توجد منتجات للتصدير', 'warning');
+            if (!this.checkXLSXLibrary()) {
+                notificationUtils.showToast('مكتبة Excel غير متوفرة', 'danger');
                 return;
             }
 
-            // Prepare data
-            const exportData = products.map(p => ({
-                'اسم المنتج': p.name || '',
-                'الفئة': p.category || '',
-                'السعر': p.price || 0,
-                'التكلفة': p.cost || 0,
-                'الهامش': p.margin || 0,
-                'SKU': p.sku || '',
-                'الحد الأدنى': p.minStock || 0,
-                'الحد الأقصى': p.maxStock || 0,
-                'الوصف': p.description || '',
-                'تاريخ الإنشاء': p.createdAt || ''
-            }));
+            const { totalSales, totalProfit, transactionCount, topItems, byBranch } = report.data;
 
-            // Create workbook
-            const ws = XLSX.utils.json_to_sheet(exportData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'المنتجات');
-
-            // Set column widths
-            ws['!cols'] = [
-                { wch: 20 },
-                { wch: 15 },
-                { wch: 10 },
-                { wch: 10 },
-                { wch: 10 },
-                { wch: 12 },
-                { wch: 10 },
-                { wch: 10 },
-                { wch: 25 },
-                { wch: 15 }
+            // Main report sheet
+            const reportData = [
+                ['تقرير المبيعات', '', ''],
+                ['تاريخ التقرير', new Date().toLocaleDateString('ar-SA'), ''],
+                ['', '', ''],
+                ['المقياس', 'القيمة', ''],
+                ['إجمالي المبيعات', totalSales, ''],
+                ['إجمالي الأرباح', totalProfit, ''],
+                ['عدد العمليات', transactionCount, '']
             ];
 
-            // Write file
-            const fileName = `المنتجات_${dateUtils.getCurrentDate()}.xlsx`;
-            XLSX.writeFile(wb, fileName);
-
-            notificationUtils.showToast(`✅ تم تصدير ${products.length} منتج بنجاح`, 'success');
-        } catch (error) {
-            console.error('Export error:', error);
-            notificationUtils.showToast('❌ خطأ في التصدير: ' + error.message, 'danger');
-        }
-    }
-
-    // Export Inventory to Excel
-    exportInventoryToExcel() {
-        try {
-            if (typeof XLSX === 'undefined') {
-                throw new Error('SheetJS library not loaded');
-            }
-
-            const inventory = this.inventory.inventory || [];
-
-            if (inventory.length === 0) {
-                notificationUtils.showToast('❌ لا توجد بيانات مخزون للتصدير', 'warning');
-                return;
-            }
-
-            // Prepare data
-            const exportData = inventory.map(inv => ({
-                'المنتج': this.productsManager.getProductById(inv.productId)?.name || 'غير معروف',
-                'الفرع': inv.branchName || '',
-                'الكمية': inv.quantity || 0,
-                'الحد الأدنى': inv.minStock || 0,
-                'الحد الأقصى': inv.maxStock || 0,
-                'القيمة': inv.value || 0,
-                'آخر تحديث': inv.lastUpdated || ''
-            }));
-
-            // Create workbook
-            const ws = XLSX.utils.json_to_sheet(exportData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'المخزون');
-
-            // Set column widths
-            ws['!cols'] = [
-                { wch: 20 },
-                { wch: 15 },
-                { wch: 10 },
-                { wch: 10 },
-                { wch: 10 },
-                { wch: 12 },
-                { wch: 15 }
-            ];
-
-            // Write file
-            const fileName = `المخزون_${dateUtils.getCurrentDate()}.xlsx`;
-            XLSX.writeFile(wb, fileName);
-
-            notificationUtils.showToast(`✅ تم تصدير بيانات المخزون بنجاح`, 'success');
-        } catch (error) {
-            console.error('Inventory export error:', error);
-            notificationUtils.showToast('❌ خطأ في التصدير: ' + error.message, 'danger');
-        }
-    }
-
-    // Export Sales to Excel
-    exportSalesToExcel() {
-        try {
-            if (typeof XLSX === 'undefined') {
-                throw new Error('SheetJS library not loaded');
-            }
-
-            const sales = this.sales.sales || [];
-
-            if (sales.length === 0) {
-                notificationUtils.showToast('❌ لا توجد مبيعات للتصدير', 'warning');
-                return;
-            }
-
-            // Prepare data
-            const exportData = sales.map(s => ({
-                'رقم الفاتورة': s.id || '',
-                'التاريخ': s.date || '',
-                'الفرع': s.branchName || '',
-                'المنتجات': (s.items?.length || 0) + ' منتج',
-                'الإجمالي': s.total || 0,
-                'الربح': s.profit || 0,
-                'ملاحظات': s.notes || ''
-            }));
-
-            // Create workbook
-            const ws = XLSX.utils.json_to_sheet(exportData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'المبيعات');
-
-            // Set column widths
-            ws['!cols'] = [
-                { wch: 15 },
-                { wch: 15 },
-                { wch: 15 },
-                { wch: 15 },
-                { wch: 12 },
-                { wch: 12 },
-                { wch: 20 }
-            ];
-
-            // Write file
-            const fileName = `المبيعات_${dateUtils.getCurrentDate()}.xlsx`;
-            XLSX.writeFile(wb, fileName);
-
-            notificationUtils.showToast(`✅ تم تصدير ${sales.length} عملية بيع بنجاح`, 'success');
-        } catch (error) {
-            console.error('Sales export error:', error);
-            notificationUtils.showToast('❌ خطأ في التصدير: ' + error.message, 'danger');
-        }
-    }
-
-    // Export as CSV
-    exportToCSV(data, filename) {
-        try {
-            if (!Array.isArray(data) || data.length === 0) {
-                throw new Error('No data to export');
-            }
-
-            // Get headers
-            const headers = Object.keys(data[0]);
-
-            // Create CSV content
-            let csv = headers.join(',') + '\n';
-
-            data.forEach(row => {
-                const values = headers.map(header => {
-                    const value = row[header];
-                    // Escape quotes and wrap in quotes if contains comma
-                    return typeof value === 'string' && value.includes(',')
-                        ? `"${value.replace(/"/g, '""')}"`
-                        : value;
-                });
-                csv += values.join(',') + '\n';
+            // Top selling items
+            reportData.push(['', '', '']);
+            reportData.push(['أفضل المنتجات المباعة', '', '']);
+            reportData.push(['المنتج', 'الكمية', 'الإجمالي']);
+            topItems.forEach(item => {
+                reportData.push([item.productName, item.quantity, item.total]);
             });
 
-            // Create blob and download
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
+            // By branch
+            reportData.push(['', '', '']);
+            reportData.push(['المبيعات حسب الفرع', '', '']);
+            reportData.push(['الفرع', 'عدد العمليات', 'الإيراد']);
+            Object.entries(byBranch).forEach(([name, data]) => {
+                reportData.push([name, data.sales, data.revenue]);
+            });
 
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename || 'export.csv');
-            link.style.visibility = 'hidden';
+            const worksheet = XLSX.utils.aoa_to_sheet(reportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'تقرير المبيعات');
 
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            notificationUtils.showToast('✅ تم تصدير البيانات بنجاح', 'success');
+            XLSX.writeFile(workbook, `sales-report-${dateUtils.getCurrentDate()}.xlsx`);
+            notificationUtils.showToast('تم تصدير التقرير بنجاح', 'success');
         } catch (error) {
-            console.error('CSV export error:', error);
-            notificationUtils.showToast('❌ خطأ في التصدير: ' + error.message, 'danger');
+            console.error('Export error:', error);
+            notificationUtils.showToast('حدث خطأ أثناء التصدير', 'danger');
         }
     }
 
-    // Export as JSON
-    exportToJSON(data, filename) {
+    exportInventoryReport(report) {
         try {
-            if (!data) {
-                throw new Error('No data to export');
+            if (!this.checkXLSXLibrary()) {
+                notificationUtils.showToast('مكتبة Excel غير متوفرة', 'danger');
+                return;
             }
 
-            const jsonString = JSON.stringify(data, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
+            const { totalValue, lowStockItems, outOfStockItems, highStockItems, stats } = report.data;
 
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename || 'export.json');
-            link.style.visibility = 'hidden';
+            const reportData = [
+                ['تقرير المخزون', '', ''],
+                ['تاريخ التقرير', new Date().toLocaleDateString('ar-SA'), ''],
+                ['', '', ''],
+                ['المقياس', 'القيمة', ''],
+                ['إجمالي قيمة المخزون', totalValue, ''],
+                ['عدد المنتجات', stats.totalProducts, ''],
+                ['متوسط السعر', stats.averagePrice, '']
+            ];
 
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Low stock items
+            reportData.push(['', '', '']);
+            reportData.push(['المنتجات منخفضة المخزون (⚠️)', '', '']);
+            reportData.push(['المنتج', 'الكمية', 'السعر']);
+            lowStockItems.forEach(item => {
+                reportData.push([item.productName, item.quantity, item.price]);
+            });
 
-            notificationUtils.showToast('✅ تم تصدير البيانات بنجاح', 'success');
+            // Out of stock items
+            reportData.push(['', '', '']);
+            reportData.push(['المنتجات المنقطعة (🔴)', '', '']);
+            outOfStockItems.forEach(item => {
+                reportData.push([item.productName, item.quantity, item.price]);
+            });
+
+            // High stock items
+            reportData.push(['', '', '']);
+            reportData.push(['المنتجات ذات المخزون العالي', '', '']);
+            highStockItems.forEach(item => {
+                reportData.push([item.productName, item.quantity, item.price]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(reportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'تقرير المخزون');
+
+            XLSX.writeFile(workbook, `inventory-report-${dateUtils.getCurrentDate()}.xlsx`);
+            notificationUtils.showToast('تم تصدير التقرير بنجاح', 'success');
         } catch (error) {
-            console.error('JSON export error:', error);
-            notificationUtils.showToast('❌ خطأ في التصدير: ' + error.message, 'danger');
+            console.error('Export error:', error);
+            notificationUtils.showToast('حدث خطأ أثناء التصدير', 'danger');
         }
     }
 
-    // Export Product Template (Fixed)
-    exportTemplate() {
+    exportBranchReport(report) {
         try {
-            if (typeof XLSX === 'undefined') {
-                throw new Error('SheetJS library not loaded');
+            if (!this.checkXLSXLibrary()) {
+                notificationUtils.showToast('مكتبة Excel غير متوفرة', 'danger');
+                return;
             }
 
-            const template = [
-                {
-                    name: 'اسم المنتج',
-                    category: 'الفئة',
-                    price: 10.50,
-                    cost: 5.25,
-                    minStock: 10,
-                    maxStock: 100,
-                    description: 'وصف المنتج',
-                    sku: 'SKU-001'
-                }
+            const { branchCount, totalMetrics, topPerformers, needsAttention } = report.data;
+
+            const reportData = [
+                ['تقرير الفروع', '', ''],
+                ['تاريخ التقرير', new Date().toLocaleDateString('ar-SA'), ''],
+                ['', '', ''],
+                ['المقياس', 'القيمة', ''],
+                ['عدد الفروع', branchCount, ''],
+                ['إجمالي الإيرادات', totalMetrics.totalRevenue, ''],
+                ['إجمالي التكاليف', totalMetrics.totalCost, ''],
+                ['إجمالي الموظفين', totalMetrics.totalStaff, '']
             ];
 
-            const ws = XLSX.utils.json_to_sheet(template);
+            // Top performers
+            reportData.push(['', '', '']);
+            reportData.push(['الفروع الأفضل أداءً (🏆)', '', '']);
+            reportData.push(['الفرع', 'الإيراد', 'الموقع']);
+            topPerformers.forEach(b => {
+                reportData.push([b.name, b.revenue, b.location || '-']);
+            });
 
-            // Set column widths
-            ws['!cols'] = [
-                { wch: 20 },
-                { wch: 15 },
-                { wch: 10 },
-                { wch: 10 },
-                { wch: 10 },
-                { wch: 10 },
-                { wch: 25 },
-                { wch: 12 }
-            ];
+            // Needs attention
+            reportData.push(['', '', '']);
+            reportData.push(['الفروع التي تحتاج متابعة (⚠️)', '', '']);
+            needsAttention.forEach(b => {
+                reportData.push([b.name, b.revenue, b.location || '-']);
+            });
 
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'المنتجات');
-            XLSX.writeFile(wb, 'نموذج_استيراد_المنتجات.xlsx');
+            const worksheet = XLSX.utils.aoa_to_sheet(reportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'تقرير الفروع');
 
-            notificationUtils.showToast('✅ تم تنزيل النموذج بنجاح', 'success');
+            XLSX.writeFile(workbook, `branch-report-${dateUtils.getCurrentDate()}.xlsx`);
+            notificationUtils.showToast('تم تصدير التقرير بنجاح', 'success');
         } catch (error) {
-            console.error('Template export error:', error);
-            notificationUtils.showToast('❌ خطأ في تنزيل النموذج: ' + error.message, 'danger');
+            console.error('Export error:', error);
+            notificationUtils.showToast('حدث خطأ أثناء التصدير', 'danger');
+        }
+    }
+
+    exportProductReport(report) {
+        try {
+            if (!this.checkXLSXLibrary()) {
+                notificationUtils.showToast('مكتبة Excel غير متوفرة', 'danger');
+                return;
+            }
+
+            const { totalProducts, categories, stats, topProducts, totalValue } = report.data;
+
+            const reportData = [
+                ['تقرير المنتجات', '', ''],
+                ['تاريخ التقرير', new Date().toLocaleDateString('ar-SA'), ''],
+                ['', '', ''],
+                ['المقياس', 'القيمة', ''],
+                ['إجمالي المنتجات', totalProducts, ''],
+                ['إجمالي القيمة', totalValue, '']
+            ];
+
+            // Categories
+            reportData.push(['', '', '']);
+            reportData.push(['الفئات', '', '']);
+            categories.forEach(cat => {
+                reportData.push([cat, '', '']);
+            });
+
+            // Top products
+            reportData.push(['', '', '']);
+            reportData.push(['أفضل المنتجات', '', '']);
+            reportData.push(['المنتج', 'السعر', 'الفئة']);
+            topProducts.forEach(p => {
+                reportData.push([p.name, p.price, p.category]);
+            });
+
+            const worksheet = XLSX.utils.aoa_to_sheet(reportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'تقرير المنتجات');
+
+            XLSX.writeFile(workbook, `product-report-${dateUtils.getCurrentDate()}.xlsx`);
+            notificationUtils.showToast('تم تصدير التقرير بنجاح', 'success');
+        } catch (error) {
+            console.error('Export error:', error);
+            notificationUtils.showToast('حدث خطأ أثناء التصدير', 'danger');
+        }
+    }
+
+    exportProductsToExcel() {
+        try {
+            if (!this.checkXLSXLibrary()) {
+                notificationUtils.showToast('مكتبة Excel غير متوفرة', 'danger');
+                return;
+            }
+
+            const data = products.products.map(p => [
+                p.name,
+                p.category,
+                p.price,
+                p.cost,
+                p.price - p.cost,
+                p.sku || '',
+                p.minStock || 0,
+                p.maxStock || 0
+            ]);
+
+            data.unshift(['المنتج', 'الفئة', 'السعر', 'التكلفة', 'الهامش', 'SKU', 'الحد الأدنى', 'الحد الأقصى']);
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'المنتجات');
+
+            XLSX.writeFile(workbook, `products-${dateUtils.getCurrentDate()}.xlsx`);
+            notificationUtils.showToast('تم تصدير المنتجات بنجاح', 'success');
+        } catch (error) {
+            console.error('Export error:', error);
+            notificationUtils.showToast('حدث خطأ أثناء التصدير', 'danger');
+        }
+    }
+
+    exportInventoryToExcel() {
+        try {
+            if (!this.checkXLSXLibrary()) {
+                notificationUtils.showToast('مكتبة Excel غير متوفرة', 'danger');
+                return;
+            }
+
+            const data = [];
+            products.products.forEach(product => {
+                branches.branches.forEach(branch => {
+                    const inv = inventory.getInventoryItem(product.id, branch.id);
+                    if (inv) {
+                        data.push([
+                            product.name,
+                            branch.name,
+                            inv.quantity,
+                            product.price,
+                            inv.quantity * product.price
+                        ]);
+                    }
+                });
+            });
+
+            data.unshift(['المنتج', 'الفرع', 'الكمية', 'السعر', 'الإجمالي']);
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'المخزون');
+
+            XLSX.writeFile(workbook, `inventory-${dateUtils.getCurrentDate()}.xlsx`);
+            notificationUtils.showToast('تم تصدير المخزون بنجاح', 'success');
+        } catch (error) {
+            console.error('Export error:', error);
+            notificationUtils.showToast('حدث خطأ أثناء التصدير', 'danger');
+        }
+    }
+
+    exportSalesToExcel() {
+        try {
+            if (!this.checkXLSXLibrary()) {
+                notificationUtils.showToast('مكتبة Excel غير متوفرة', 'danger');
+                return;
+            }
+
+            const data = sales.getSales().map(sale => [
+                sale.invoiceNumber,
+                sale.date,
+                sale.branchId,
+                sale.items.length,
+                sale.subtotal,
+                sale.tax,
+                sale.discount,
+                sale.total
+            ]);
+
+            data.unshift(['رقم الفاتورة', 'التاريخ', 'الفرع', 'البنود', 'الإجمالي الجزئي', 'الضريبة', 'الخصم', 'الإجمالي']);
+
+            const worksheet = XLSX.utils.aoa_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'المبيعات');
+
+            XLSX.writeFile(workbook, `sales-${dateUtils.getCurrentDate()}.xlsx`);
+            notificationUtils.showToast('تم تصدير المبيعات بنجاح', 'success');
+        } catch (error) {
+            console.error('Export error:', error);
+            notificationUtils.showToast('حدث خطأ أثناء التصدير', 'danger');
         }
     }
 }
 
-// Initialize Enhanced Exporter (will be used in app.js)
-let enhancedExporter = null;
-
-// Function to initialize exporter when app loads
-function initializeEnhancedExporter() {
-    if (typeof db !== 'undefined' && typeof products !== 'undefined' &&
-        typeof inventory !== 'undefined' && typeof sales !== 'undefined') {
-        enhancedExporter = new EnhancedExcelExporter(db, products, inventory, sales);
-        console.log('✅ Enhanced Excel Exporter Initialized');
-    }
-}
-
-// Export class for use
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = EnhancedExcelExporter;
-}
+// Initialize Enhanced Exporter
+const exporter = new EnhancedExcelExporter();

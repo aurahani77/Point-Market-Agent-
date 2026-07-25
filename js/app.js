@@ -22,6 +22,9 @@ class PointMarketApp {
             await notifications.initialize();
             console.log('✓ Notifications initialized');
 
+            // Keep the header badge in sync with unread notifications
+            notifications.addListener(() => this.updateNotificationBadge());
+
             // Initialize Data Managers
             await products.initialize();
             await branches.initialize();
@@ -32,6 +35,9 @@ class PointMarketApp {
             // Seed database with sample data
             const seeder = new SeedersManager(db, products, branches, inventory, sales);
             await seeder.seedAll();
+
+            // Reload sales into memory since seeding adds sales after sales.initialize() ran
+            await sales.initialize();
 
             // Setup UI
             this.setupEventListeners();
@@ -90,6 +96,7 @@ class PointMarketApp {
         domUtils.getElementById('loginPage').style.display = 'none';
         domUtils.getElementById('mainApp').style.display = 'flex';
         this.updateUserInfo();
+        this.updateNotificationBadge();
         this.loadDashboard();
     }
 
@@ -156,6 +163,10 @@ class PointMarketApp {
             this.exportProductTemplate();
         });
 
+        domUtils.getElementById('exportProductsExcelBtn')?.addEventListener('click', () => {
+            this.exportProductsToExcel();
+        });
+
         document.getElementById('excelFileInput')?.addEventListener('change', (e) => {
             this.handleExcelImport(e);
         });
@@ -181,6 +192,10 @@ class PointMarketApp {
             this.filterInventoryByStatus(e.target.value);
         });
 
+        domUtils.getElementById('exportInventoryBtn')?.addEventListener('click', () => {
+            this.exportInventory();
+        });
+
         // Sales Page
         domUtils.getElementById('newInvoiceBtn')?.addEventListener('click', () => {
             this.startNewInvoice();
@@ -189,6 +204,51 @@ class PointMarketApp {
         // Settings Page
         domUtils.getElementById('backupBtn')?.addEventListener('click', () => {
             this.performBackup();
+        });
+
+        // Reports Page
+        domUtils.getElementById('refreshReportsBtn')?.addEventListener('click', () => {
+            this.loadReports();
+        });
+
+        domUtils.getElementById('exportReportsJsonBtn')?.addEventListener('click', () => {
+            this.exportReports('json');
+        });
+
+        domUtils.getElementById('exportReportsCsvBtn')?.addEventListener('click', () => {
+            this.exportReports('csv');
+        });
+
+        domUtils.getElementById('exportSalesExcelBtn')?.addEventListener('click', () => {
+            if (this.lastReports && this.lastReports.salesReport) {
+                exporter.exportSalesReport(this.lastReports.salesReport);
+            } else {
+                notificationUtils.showToast('حمّل التقارير أولاً', 'info');
+            }
+        });
+
+        domUtils.getElementById('exportInventoryExcelBtn')?.addEventListener('click', () => {
+            if (this.lastReports && this.lastReports.inventoryReport) {
+                exporter.exportInventoryReport(this.lastReports.inventoryReport);
+            } else {
+                notificationUtils.showToast('حمّل التقارير أولاً', 'info');
+            }
+        });
+
+        domUtils.getElementById('exportBranchExcelBtn')?.addEventListener('click', () => {
+            if (this.lastReports && this.lastReports.branchReport) {
+                exporter.exportBranchReport(this.lastReports.branchReport);
+            } else {
+                notificationUtils.showToast('حمّل التقارير أولاً', 'info');
+            }
+        });
+
+        domUtils.getElementById('exportProductExcelBtn')?.addEventListener('click', () => {
+            if (this.lastReports && this.lastReports.productReport) {
+                exporter.exportProductReport(this.lastReports.productReport);
+            } else {
+                notificationUtils.showToast('حمّل التقارير أولاً', 'info');
+            }
         });
 
         domUtils.getElementById('restoreBtn')?.addEventListener('click', () => {
@@ -233,6 +293,7 @@ class PointMarketApp {
             branches: 'إدارة الفروع',
             sales: 'إدارة المبيعات',
             reports: 'التقارير والتحليلات',
+            aiIntelligence: 'لوحة الذكاء الاصطناعي',
             settings: 'الإعدادات'
         };
 
@@ -259,6 +320,9 @@ class PointMarketApp {
                 break;
             case 'reports':
                 this.loadReports();
+                break;
+            case 'aiIntelligence':
+                this.loadAIDashboard();
                 break;
             case 'settings':
                 this.loadSettings();
@@ -633,6 +697,41 @@ class PointMarketApp {
         this.loadInventory();
     }
 
+    exportInventory() {
+        const items = inventory.getInventoryWithDetails();
+        if (items.length === 0) {
+            notificationUtils.showToast('لا توجد بيانات مخزون لتصديرها', 'info');
+            return;
+        }
+
+        const headers = ['المنتج', 'الفئة', 'الفرع', 'الكمية', 'الحد الأدنى', 'الحد الأقصى', 'الحالة', 'القيمة', 'آخر تحديث'];
+        const statusText = { low: 'منخفض', balanced: 'متوازن', high: 'زائد', 'out-of-stock': 'انقطع' };
+        const rows = items.map(item => [
+            item.productName,
+            item.productCategory,
+            item.branchName,
+            item.quantity,
+            item.minStock,
+            item.maxStock,
+            statusText[item.status] || item.status,
+            item.value.toFixed(2),
+            dateUtils.formatDate(item.lastUpdated)
+        ]);
+
+        const csv = [headers, ...rows]
+            .map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+            .join('\n');
+
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `inventory-${dateUtils.getCurrentDate()}.csv`;
+        link.click();
+        URL.revokeObjectURL(url);
+        notificationUtils.showToast('تم تصدير المخزون بنجاح', 'success');
+    }
+
     searchInventory(query) {
         const inventoryList = domUtils.getElementById('inventoryList');
         const filtered = inventory.searchInventory(query);
@@ -830,8 +929,162 @@ class PointMarketApp {
         }
 
         sales.startInvoice(branchId);
-        notificationUtils.showToast('تم بدء فاتورة جديدة', 'success');
-        // TODO: Show invoice form
+        this.showInvoiceModal(branchId);
+    }
+
+    showInvoiceModal(branchId) {
+        const template = domUtils.getElementById('invoiceModalTemplate');
+        if (!template) return;
+
+        let modal = domUtils.getElementById('invoiceModal');
+        if (modal) modal.remove();
+
+        modal = template.content.cloneNode(true).querySelector('.modal');
+        document.body.appendChild(modal);
+        this.invoiceModal = modal;
+
+        // Populate branch select
+        const branchSelect = modal.querySelector('#invoiceBranchSelect');
+        branchSelect.innerHTML = branches.getBranches().map(b =>
+            `<option value="${b.id}">${b.name}</option>`
+        ).join('');
+        branchSelect.value = branchId;
+
+        // Populate product select
+        const productSelect = modal.querySelector('#invoiceProductSelect');
+        productSelect.innerHTML = products.getProducts().map(p =>
+            `<option value="${p.id}">${p.name} — ${numberUtils.formatCurrency(p.price)}</option>`
+        ).join('');
+
+        this.updateInvoiceStockHint(modal);
+        this.renderInvoiceCart(modal);
+
+        branchSelect.addEventListener('change', (e) => {
+            if (sales.currentInvoice && sales.currentInvoice.items.length > 0) {
+                if (!confirm('تغيير الفرع سيبدأ فاتورة جديدة وسيتم فقدان الأصناف الحالية. متابعة؟')) {
+                    branchSelect.value = sales.currentInvoice.branchId;
+                    return;
+                }
+            }
+            sales.startInvoice(Number(e.target.value));
+            this.updateInvoiceStockHint(modal);
+            this.renderInvoiceCart(modal);
+        });
+
+        productSelect.addEventListener('change', () => this.updateInvoiceStockHint(modal));
+
+        modal.querySelector('#addInvoiceItemBtn').addEventListener('click', () => {
+            const productId = Number(productSelect.value);
+            const quantity = Number(modal.querySelector('#invoiceQuantityInput').value);
+
+            if (!productId || !quantity || quantity <= 0) {
+                notificationUtils.showToast('اختر منتج وكمية صحيحة', 'danger');
+                return;
+            }
+
+            const invBranchId = sales.currentInvoice.branchId;
+            const stockItem = inventory.getInventoryItem(productId, invBranchId);
+            const existingQty = sales.currentInvoice.items.find(i => i.productId === productId)?.quantity || 0;
+
+            if (stockItem && (existingQty + quantity) > stockItem.quantity) {
+                notificationUtils.showToast(`الكمية المتاحة في المخزون: ${stockItem.quantity}`, 'danger');
+                return;
+            }
+
+            try {
+                sales.addItemToInvoice(productId, quantity);
+                this.renderInvoiceCart(modal);
+                this.updateInvoiceStockHint(modal);
+            } catch (error) {
+                notificationUtils.showToast(error.message, 'danger');
+            }
+        });
+
+        modal.querySelector('#invoiceDiscountInput').addEventListener('input', (e) => {
+            sales.setDiscount(Number(e.target.value) || 0);
+            this.renderInvoiceTotals(modal);
+        });
+
+        modal.querySelector('#completeInvoiceBtn').addEventListener('click', async () => {
+            if (!sales.currentInvoice || sales.currentInvoice.items.length === 0) {
+                notificationUtils.showToast('أضف صنفاً واحداً على الأقل', 'danger');
+                return;
+            }
+
+            const result = await sales.completeInvoice();
+            if (result.success) {
+                notificationUtils.showToast(`تم إنشاء الفاتورة #${result.sale.invoiceNumber}`, 'success');
+                modal.remove();
+                this.loadSales();
+                if (this.currentPage === 'dashboard') this.loadDashboard();
+                if (this.currentPage === 'inventory') this.loadInventory();
+            } else {
+                notificationUtils.showToast('خطأ: ' + result.error, 'danger');
+            }
+        });
+
+        const closeInvoiceModal = () => {
+            sales.cancelInvoice();
+            modal.remove();
+        };
+
+        modal.querySelector('.close-btn').addEventListener('click', closeInvoiceModal);
+        modal.querySelector('.close-modal').addEventListener('click', closeInvoiceModal);
+
+        modal.classList.add('active');
+    }
+
+    updateInvoiceStockHint(modal) {
+        const productSelect = modal.querySelector('#invoiceProductSelect');
+        const hint = modal.querySelector('#invoiceStockHint');
+        const productId = Number(productSelect.value);
+        if (!productId || !sales.currentInvoice) {
+            hint.textContent = '';
+            return;
+        }
+        const stockItem = inventory.getInventoryItem(productId, sales.currentInvoice.branchId);
+        hint.textContent = stockItem
+            ? `📦 المتاح في هذا الفرع: ${stockItem.quantity} وحدة`
+            : '📦 لا توجد بيانات مخزون لهذا المنتج في الفرع المختار';
+    }
+
+    removeInvoiceItem(productId) {
+        sales.removeItemFromInvoice(productId);
+        if (this.invoiceModal) {
+            this.renderInvoiceCart(this.invoiceModal);
+            this.updateInvoiceStockHint(this.invoiceModal);
+        }
+    }
+
+    renderInvoiceCart(modal) {
+        const list = modal.querySelector('#invoiceItemsList');
+        const items = sales.currentInvoice?.items || [];
+
+        list.innerHTML = items.length === 0
+            ? '<tr><td colspan="5" class="text-center">لا توجد أصناف بعد</td></tr>'
+            : items.map(item => `
+                <tr>
+                    <td>${item.productName}</td>
+                    <td>${item.quantity}</td>
+                    <td>${numberUtils.formatCurrency(item.price)}</td>
+                    <td>${numberUtils.formatCurrency(item.total)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="app.removeInvoiceItem(${item.productId})">حذف</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+        this.renderInvoiceTotals(modal);
+    }
+
+    renderInvoiceTotals(modal) {
+        const invoice = sales.currentInvoice;
+        modal.querySelector('#invoiceSubtotal').textContent = numberUtils.formatCurrency(invoice?.subtotal || 0);
+        modal.querySelector('#invoiceTax').textContent = numberUtils.formatCurrency(invoice?.tax || 0);
+        modal.querySelector('#invoiceDiscountDisplay').textContent = numberUtils.formatCurrency(invoice?.discount || 0);
+        modal.querySelector('#invoiceTotal').textContent = numberUtils.formatCurrency(invoice?.total || 0);
     }
 
     viewSale(saleId) {
@@ -889,451 +1142,236 @@ class PointMarketApp {
     // ========== Reports ==========
     async loadReports() {
         try {
-            // Clear previous content
-            const pageContainer = domUtils.getElementById('pageContainer');
-            pageContainer.innerHTML = `
-                <div class="reports-container">
-                    <!-- Sales Report Section -->
-                    <div class="report-section">
-                        <h3>📊 تقرير المبيعات</h3>
-                        <div class="report-filters">
-                            <input type="date" id="salesStartDate" class="filter-select">
-                            <input type="date" id="salesEndDate" class="filter-select">
-                            <button class="btn btn-primary" id="generateSalesReportBtn">عرض التقرير</button>
-                            <button class="btn btn-secondary" id="exportSalesReportBtn">📥 تصدير</button>
-                        </div>
-                        <div id="salesReportContent" class="report-content"></div>
-                    </div>
+            const startInput = domUtils.getElementById('reportStartDate');
+            const endInput = domUtils.getElementById('reportEndDate');
 
-                    <!-- Inventory Report Section -->
-                    <div class="report-section">
-                        <h3>📦 تقرير المخزون</h3>
-                        <button class="btn btn-primary" id="generateInventoryReportBtn">عرض التقرير</button>
-                        <button class="btn btn-secondary" id="exportInventoryReportBtn">📥 تصدير</button>
-                        <div id="inventoryReportContent" class="report-content"></div>
-                    </div>
+            // Default range: last 90 days -> today (only set once)
+            if (startInput && !startInput.value) {
+                const start = new Date();
+                start.setDate(start.getDate() - 90);
+                startInput.value = start.toISOString().split('T')[0];
+            }
+            if (endInput && !endInput.value) {
+                endInput.value = dateUtils.getCurrentDate();
+            }
 
-                    <!-- Product Report Section -->
-                    <div class="report-section">
-                        <h3>🛍️ تقرير المنتجات</h3>
-                        <button class="btn btn-primary" id="generateProductReportBtn">عرض التقرير</button>
-                        <button class="btn btn-secondary" id="exportProductReportBtn">📥 تصدير</button>
-                        <div id="productReportContent" class="report-content"></div>
-                    </div>
+            const startDate = startInput ? startInput.value : dateUtils.getCurrentDate();
+            const endDate = endInput ? endInput.value : dateUtils.getCurrentDate();
+            const endDateInclusive = endDate + 'T23:59:59.999Z';
 
-                    <!-- Branch Report Section -->
-                    <div class="report-section">
-                        <h3>🏪 تقرير الفروع</h3>
-                        <button class="btn btn-primary" id="generateBranchReportBtn">عرض التقرير</button>
-                        <button class="btn btn-secondary" id="exportBranchReportBtn">📥 تصدير</button>
-                        <div id="branchReportContent" class="report-content"></div>
-                    </div>
+            const salesReport = reports.generateSalesReport(startDate, endDateInclusive);
+            const branchReport = reports.generateBranchReport();
+            const inventoryReport = reports.generateInventoryReport();
+            const productReport = reports.generateProductReport();
+            const forecastReport = reports.generateDemandForecast();
 
-                    <!-- Forecast Report Section -->
-                    <div class="report-section">
-                        <h3>📈 تقرير التنبؤات</h3>
-                        <button class="btn btn-primary" id="generateForecastReportBtn">عرض التقرير</button>
-                        <button class="btn btn-secondary" id="exportForecastReportBtn">📥 تصدير</button>
-                        <div id="forecastReportContent" class="report-content"></div>
-                    </div>
-                </div>
-            `;
+            this.lastReports = { salesReport, branchReport, inventoryReport, productReport, forecastReport };
 
-            // Set default dates (last 30 days)
-            const today = new Date();
-            const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-            const salesStartDateInput = domUtils.getElementById('salesStartDate');
-            const salesEndDateInput = domUtils.getElementById('salesEndDate');
-
-            if (salesStartDateInput) salesStartDateInput.valueAsDate = thirtyDaysAgo;
-            if (salesEndDateInput) salesEndDateInput.valueAsDate = today;
-
-            // Attach event listeners
-            domUtils.getElementById('generateSalesReportBtn')?.addEventListener('click', () => this.generateAndDisplaySalesReport());
-            domUtils.getElementById('exportSalesReportBtn')?.addEventListener('click', () => this.exportReportToPDF('sales'));
-
-            domUtils.getElementById('generateInventoryReportBtn')?.addEventListener('click', () => this.generateAndDisplayInventoryReport());
-            domUtils.getElementById('exportInventoryReportBtn')?.addEventListener('click', () => this.exportReportToPDF('inventory'));
-
-            domUtils.getElementById('generateProductReportBtn')?.addEventListener('click', () => this.generateAndDisplayProductReport());
-            domUtils.getElementById('exportProductReportBtn')?.addEventListener('click', () => this.exportReportToPDF('product'));
-
-            domUtils.getElementById('generateBranchReportBtn')?.addEventListener('click', () => this.generateAndDisplayBranchReport());
-            domUtils.getElementById('exportBranchReportBtn')?.addEventListener('click', () => this.exportReportToPDF('branch'));
-
-            domUtils.getElementById('generateForecastReportBtn')?.addEventListener('click', () => this.generateAndDisplayForecastReport());
-            domUtils.getElementById('exportForecastReportBtn')?.addEventListener('click', () => this.exportReportToPDF('forecast'));
-
-            // Load all reports by default
-            this.generateAndDisplaySalesReport();
-            this.generateAndDisplayInventoryReport();
-            this.generateAndDisplayProductReport();
-            this.generateAndDisplayBranchReport();
-            this.generateAndDisplayForecastReport();
-
+            this.renderSalesReport(salesReport);
+            this.renderBranchReport(branchReport);
+            this.renderInventoryProductReport(inventoryReport, productReport);
+            this.renderForecastReport(forecastReport);
         } catch (error) {
             console.error('Error loading reports:', error);
-            notificationUtils.showToast('خطأ في تحميل التقارير: ' + error.message, 'danger');
+            notificationUtils.showToast('حدث خطأ أثناء تحميل التقارير', 'danger');
         }
     }
 
-    // Generate and Display Sales Report
-    async generateAndDisplaySalesReport() {
-        try {
-            const startDate = domUtils.getElementById('salesStartDate')?.value || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-            const endDate = domUtils.getElementById('salesEndDate')?.value || new Date().toISOString().split('T')[0];
+    renderSalesReport(report) {
+        const el = domUtils.getElementById('salesReport');
+        if (!el) return;
+        const { totalSales, totalProfit, transactionCount, topItems, byBranch } = report.data;
 
-            const report = reports.generateSalesReport(startDate, endDate);
-
-            let html = `
-                <div class="stat-row">
-                    <span>إجمالي المبيعات:</span>
-                    <span class="stat-value">${numberUtils.formatCurrency(report.data.totalSales)}</span>
+        const topItemsHtml = topItems.length
+            ? topItems.map(item => `
+                <div class="metric">
+                    <span>${item.productName}</span>
+                    <span>${item.quantity} وحدة — ${numberUtils.formatCurrency(item.total)}</span>
                 </div>
-                <div class="stat-row">
-                    <span>إجمالي الربح:</span>
-                    <span class="stat-value">${numberUtils.formatCurrency(report.data.totalProfit)}</span>
-                </div>
-                <div class="stat-row">
-                    <span>عدد المعاملات:</span>
-                    <span class="stat-value">${report.data.transactionCount}</span>
-                </div>
-                <hr style="margin: 15px 0; border: none; border-top: 1px solid var(--border-color);">
-                <h4 style="margin: 15px 0 10px 0;">أفضل المنتجات المباعة:</h4>
-            `;
+            `).join('')
+            : '<div class="empty-state">لا توجد بيانات مبيعات ضمن هذه الفترة</div>';
 
-            if (report.data.topItems && report.data.topItems.length > 0) {
-                html += report.data.topItems.slice(0, 5).map(item => `
-                    <div class="stat-row">
-                        <span>${item.productName}</span>
-                        <span>${item.quantity} وحدة - ${numberUtils.formatCurrency(item.totalValue)}</span>
-                    </div>
-                `).join('');
-            } else {
-                html += '<p>لا توجد بيانات مبيعات</p>';
-            }
+        const byBranchHtml = Object.entries(byBranch).map(([name, data]) => `
+            <div class="metric">
+                <span>${name}</span>
+                <span>${data.sales} عملية — ${numberUtils.formatCurrency(data.revenue)}</span>
+            </div>
+        `).join('');
 
-            if (report.data.byBranch) {
-                html += `<hr style="margin: 15px 0;"><h4 style="margin: 15px 0 10px 0;">المبيعات حسب الفرع:</h4>`;
-                Object.entries(report.data.byBranch).forEach(([branchName, data]) => {
-                    html += `
-                        <div style="background: var(--bg-secondary); padding: 10px; border-radius: 5px; margin-bottom: 8px;">
-                            <div style="font-weight: 600; margin-bottom: 5px;">${branchName}</div>
-                            <div class="stat-row">
-                                <span>عدد المبيعات:</span>
-                                <span>${data.sales}</span>
-                            </div>
-                            <div class="stat-row">
-                                <span>الإيراد:</span>
-                                <span>${numberUtils.formatCurrency(data.revenue)}</span>
-                            </div>
-                            <div class="stat-row">
-                                <span>الربح:</span>
-                                <span style="color: var(--success);">${numberUtils.formatCurrency(data.profit)}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-
-            domUtils.getElementById('salesReportContent').innerHTML = html;
-            notificationUtils.showToast('✅ تم تحديث تقرير المبيعات', 'success');
-        } catch (error) {
-            console.error('Error generating sales report:', error);
-            domUtils.getElementById('salesReportContent').innerHTML = `<p style="color: var(--danger);">خطأ: ${error.message}</p>`;
-        }
+        el.innerHTML = `
+            <div class="ai-content">
+                <div class="metric"><span>إجمالي المبيعات</span><span>${numberUtils.formatCurrency(totalSales)}</span></div>
+                <div class="metric"><span>إجمالي الأرباح</span><span>${numberUtils.formatCurrency(totalProfit)}</span></div>
+                <div class="metric"><span>عدد العمليات</span><span>${numberUtils.formatNumber(transactionCount)}</span></div>
+            </div>
+            <h4 style="margin-top: var(--spacing-4);">🏆 الأكثر مبيعاً</h4>
+            <div class="ai-content">${topItemsHtml}</div>
+            <h4 style="margin-top: var(--spacing-4);">🏬 حسب الفرع</h4>
+            <div class="ai-content">${byBranchHtml || '<div class="empty-state">لا توجد فروع</div>'}</div>
+        `;
     }
 
-    // Generate and Display Inventory Report
-    async generateAndDisplayInventoryReport() {
-        try {
-            const report = reports.generateInventoryReport();
+    renderBranchReport(report) {
+        const el = domUtils.getElementById('branchReport');
+        if (!el) return;
+        const { branchCount, totalMetrics, topPerformers, needsAttention } = report.data;
 
-            let html = `
-                <div class="stat-row">
-                    <span>القيمة الإجمالية للمخزون:</span>
-                    <span class="stat-value">${numberUtils.formatCurrency(report.data.totalValue)}</span>
-                </div>
-            `;
+        const topHtml = topPerformers.map(b => `
+            <div class="metric"><span>${b.name}</span><span>${numberUtils.formatCurrency(b.revenue)}</span></div>
+        `).join('');
 
-            if (report.data.stats) {
-                html += `
-                    <div class="stat-row">
-                        <span>عدد المنتجات:</span>
-                        <span>${report.data.stats.totalItems || 0}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span>متوسط السعر:</span>
-                        <span>${numberUtils.formatCurrency(report.data.stats.avgPrice || 0)}</span>
-                    </div>
-                `;
-            }
+        const lowHtml = needsAttention.map(b => `
+            <div class="metric"><span>${b.name}</span><span>${numberUtils.formatCurrency(b.revenue)}</span></div>
+        `).join('');
 
-            if (report.data.lowStockItems && report.data.lowStockItems.length > 0) {
-                html += `
-                    <hr style="margin: 15px 0;">
-                    <h4 style="margin: 15px 0 10px 0; color: var(--warning);">⚠️ منتجات بمخزون منخفض (${report.data.lowStockItems.length}):</h4>
-                    ${report.data.lowStockItems.slice(0, 5).map(item => `
-                        <div class="stat-row" style="color: var(--warning);">
-                            <span>${item.productName}</span>
-                            <span>${item.quantity} وحدة</span>
-                        </div>
-                    `).join('')}
-                `;
-            }
-
-            if (report.data.outOfStockItems && report.data.outOfStockItems.length > 0) {
-                html += `
-                    <hr style="margin: 15px 0;">
-                    <h4 style="margin: 15px 0 10px 0; color: var(--danger);">🔴 منتجات انقطعت (${report.data.outOfStockItems.length}):</h4>
-                    ${report.data.outOfStockItems.slice(0, 5).map(item => `
-                        <div class="stat-row" style="color: var(--danger);">
-                            <span>${item.productName}</span>
-                            <span>0 وحدة</span>
-                        </div>
-                    `).join('')}
-                `;
-            }
-
-            if (report.data.highStockItems && report.data.highStockItems.length > 0) {
-                html += `
-                    <hr style="margin: 15px 0;">
-                    <h4 style="margin: 15px 0 10px 0; color: var(--info);">ℹ️ منتجات مخزون عالي (${report.data.highStockItems.length}):</h4>
-                    ${report.data.highStockItems.slice(0, 5).map(item => `
-                        <div class="stat-row" style="color: var(--info);">
-                            <span>${item.productName}</span>
-                            <span>${item.quantity} وحدة</span>
-                        </div>
-                    `).join('')}
-                `;
-            }
-
-            domUtils.getElementById('inventoryReportContent').innerHTML = html;
-        } catch (error) {
-            console.error('Error generating inventory report:', error);
-            domUtils.getElementById('inventoryReportContent').innerHTML = `<p style="color: var(--danger);">خطأ: ${error.message}</p>`;
-        }
+        el.innerHTML = `
+            <div class="ai-content">
+                <div class="metric"><span>عدد الفروع</span><span>${numberUtils.formatNumber(branchCount)}</span></div>
+                <div class="metric"><span>إجمالي الإيرادات</span><span>${numberUtils.formatCurrency(totalMetrics.totalRevenue)}</span></div>
+                <div class="metric"><span>إجمالي التكاليف</span><span>${numberUtils.formatCurrency(totalMetrics.totalCost)}</span></div>
+                <div class="metric"><span>إجمالي الموظفين</span><span>${numberUtils.formatNumber(totalMetrics.totalStaff)}</span></div>
+            </div>
+            <h4 style="margin-top: var(--spacing-4);">📈 الأفضل أداءً</h4>
+            <div class="ai-content">${topHtml || '<div class="empty-state">لا توجد بيانات</div>'}</div>
+            <h4 style="margin-top: var(--spacing-4);">📉 يحتاج متابعة</h4>
+            <div class="ai-content">${lowHtml || '<div class="empty-state">لا توجد بيانات</div>'}</div>
+        `;
     }
 
-    // Generate and Display Product Report
-    async generateAndDisplayProductReport() {
-        try {
-            const report = reports.generateProductReport();
+    renderInventoryProductReport(inventoryReport, productReport) {
+        const el = domUtils.getElementById('inventoryProductReport');
+        if (!el) return;
+        const { totalValue, stats } = inventoryReport.data;
+        const { totalProducts, categories, stats: productStats } = productReport.data;
 
-            let html = `
-                <div class="stat-row">
-                    <span>إجمالي المنتجات:</span>
-                    <span class="stat-value">${report.data.totalProducts}</span>
-                </div>
-                <div class="stat-row">
-                    <span>القيمة الإجمالية للمنتجات:</span>
-                    <span class="stat-value">${numberUtils.formatCurrency(report.data.totalValue)}</span>
-                </div>
-            `;
-
-            if (report.data.categories && report.data.categories.length > 0) {
-                html += `
-                    <hr style="margin: 15px 0;">
-                    <h4 style="margin: 15px 0 10px 0;">الفئات:</h4>
-                    ${report.data.categories.map(cat => `
-                        <div class="stat-row">
-                            <span>${cat}</span>
-                            <span>${products.products.filter(p => p.category === cat).length} منتج</span>
-                        </div>
-                    `).join('')}
-                `;
-            }
-
-            if (report.data.topProducts && report.data.topProducts.length > 0) {
-                html += `
-                    <hr style="margin: 15px 0;">
-                    <h4 style="margin: 15px 0 10px 0;">أفضل المنتجات:</h4>
-                    ${report.data.topProducts.slice(0, 5).map(item => `
-                        <div class="stat-row">
-                            <span>${item.productName || item.name}</span>
-                            <span>${numberUtils.formatCurrency(item.totalValue || 0)}</span>
-                        </div>
-                    `).join('')}
-                `;
-            }
-
-            domUtils.getElementById('productReportContent').innerHTML = html;
-        } catch (error) {
-            console.error('Error generating product report:', error);
-            domUtils.getElementById('productReportContent').innerHTML = `<p style="color: var(--danger);">خطأ: ${error.message}</p>`;
-        }
+        el.innerHTML = `
+            <div class="ai-content">
+                <div class="metric"><span>عدد المنتجات</span><span>${numberUtils.formatNumber(totalProducts)}</span></div>
+                <div class="metric"><span>عدد الفئات</span><span>${numberUtils.formatNumber(categories.length)}</span></div>
+                <div class="metric"><span>متوسط سعر البيع</span><span>${numberUtils.formatCurrency(productStats.averagePrice)}</span></div>
+                <div class="metric"><span>قيمة المخزون الإجمالية</span><span>${numberUtils.formatCurrency(totalValue)}</span></div>
+            </div>
+            <h4 style="margin-top: var(--spacing-4);">📦 حالة المخزون</h4>
+            <div class="ai-recommendation ${stats.outOfStock > 0 ? 'high' : 'low'}">
+                ${stats.outOfStock} منتج نفدت كميته بالكامل
+            </div>
+            <div class="ai-recommendation ${stats.lowStock > 0 ? 'medium' : 'low'}">
+                ${stats.lowStock} منتج بمخزون منخفض
+            </div>
+            <div class="ai-recommendation low">
+                ${stats.highStock} منتج بمخزون زائد
+            </div>
+        `;
     }
 
-    // Generate and Display Branch Report
-    async generateAndDisplayBranchReport() {
-        try {
-            const report = reports.generateBranchReport();
+    renderForecastReport(report) {
+        const el = domUtils.getElementById('forecastReport');
+        if (!el) return;
+        const { predictedTrends, recommendations, seasonalAnalysis } = report.data;
 
-            let html = `
-                <div class="stat-row">
-                    <span>عدد الفروع:</span>
-                    <span class="stat-value">${report.data.branchCount}</span>
+        const trendsHtml = predictedTrends.length
+            ? predictedTrends.map(t => `
+                <div class="metric">
+                    <span>${t.trend} ${t.product}</span>
+                    <span>طلب متوقع: ${numberUtils.formatNumber(t.predictedDemand)} وحدة</span>
                 </div>
-            `;
+            `).join('')
+            : '<div class="empty-state">لا توجد بيانات كافية للتنبؤ</div>';
 
-            if (report.data.topPerformers && report.data.topPerformers.length > 0) {
-                html += `
-                    <hr style="margin: 15px 0;">
-                    <h4 style="margin: 15px 0 10px 0; color: var(--success);">🏆 أفضل الفروع الأداء:</h4>
-                    ${report.data.topPerformers.slice(0, 5).map(branch => `
-                        <div style="background: var(--bg-secondary); padding: 10px; border-radius: 5px; margin-bottom: 8px;">
-                            <div style="font-weight: 600; color: var(--success);">${branch.name}</div>
-                            <div class="stat-row">
-                                <span>الإيراد:</span>
-                                <span>${numberUtils.formatCurrency(branch.totalRevenue || 0)}</span>
-                            </div>
-                            <div class="stat-row">
-                                <span>الربح:</span>
-                                <span>${numberUtils.formatCurrency(branch.monthlyProfit || 0)}</span>
-                            </div>
-                        </div>
-                    `).join('')}
-                `;
-            }
+        const recHtml = recommendations.length
+            ? recommendations.map(r => `
+                <div class="ai-recommendation ${r.priority === 'critical' ? 'high' : r.priority}">${r.message}</div>
+            `).join('')
+            : '<div class="empty-state">لا توجد توصيات حالياً</div>';
 
-            if (report.data.needsAttention && report.data.needsAttention.length > 0) {
-                html += `
-                    <hr style="margin: 15px 0;">
-                    <h4 style="margin: 15px 0 10px 0; color: var(--warning);">⚠️ الفروع التي تحتاج انتباه:</h4>
-                    ${report.data.needsAttention.slice(0, 5).map(branch => `
-                        <div style="background: var(--bg-secondary); padding: 10px; border-radius: 5px; margin-bottom: 8px;">
-                            <div style="font-weight: 600; color: var(--warning);">${branch.name}</div>
-                            <div class="stat-row">
-                                <span>الإيراد:</span>
-                                <span>${numberUtils.formatCurrency(branch.totalRevenue || 0)}</span>
-                            </div>
-                            <div class="stat-row">
-                                <span>الربح:</span>
-                                <span>${numberUtils.formatCurrency(branch.monthlyProfit || 0)}</span>
-                            </div>
-                        </div>
-                    `).join('')}
-                `;
-            }
-
-            domUtils.getElementById('branchReportContent').innerHTML = html;
-        } catch (error) {
-            console.error('Error generating branch report:', error);
-            domUtils.getElementById('branchReportContent').innerHTML = `<p style="color: var(--danger);">خطأ: ${error.message}</p>`;
-        }
+        el.innerHTML = `
+            <h4>📈 اتجاهات الطلب</h4>
+            <div class="ai-content">${trendsHtml}</div>
+            <h4 style="margin-top: var(--spacing-4);">💡 التوصيات</h4>
+            ${recHtml}
+            <h4 style="margin-top: var(--spacing-4);">🗓️ التحليل الموسمي</h4>
+            <div class="ai-content">
+                <div class="metric"><span>موسم الذروة</span><span>${seasonalAnalysis.peak}</span></div>
+                <div class="metric"><span>الموسم المنخفض</span><span>${seasonalAnalysis.low}</span></div>
+            </div>
+        `;
     }
 
-    // Generate and Display Forecast Report
-    async generateAndDisplayForecastReport() {
-        try {
-            const report = reports.generateDemandForecast();
-
-            let html = `<h4 style="margin: 15px 0 10px 0;">📊 التنبؤات والتوصيات:</h4>`;
-
-            if (report.data.predictedTrends && report.data.predictedTrends.length > 0) {
-                html += `<h5 style="margin: 10px 0 5px 0;">الاتجاهات المتوقعة:</h5>`;
-                html += report.data.predictedTrends.slice(0, 5).map(trend => `
-                    <div class="stat-row">
-                        <span>${trend.product} ${trend.trend}</span>
-                        <span>الطلب المتوقع: ${trend.predictedDemand} وحدة</span>
-                    </div>
-                `).join('');
-            }
-
-            if (report.data.recommendations && report.data.recommendations.length > 0) {
-                html += `<hr style="margin: 15px 0;"><h5 style="margin: 10px 0 5px 0;">التوصيات:</h5>`;
-                html += report.data.recommendations.map(rec => `
-                    <div class="ai-recommendation ${rec.priority === 'high' ? 'high' : rec.priority === 'critical' ? 'danger' : 'medium'}">
-                        <div class="recommendation-title">${rec.type}: ${rec.message}</div>
-                        <div class="recommendation-desc">الأولوية: ${rec.priority}</div>
-                    </div>
-                `).join('');
-            }
-
-            if (report.data.seasonalAnalysis) {
-                html += `<hr style="margin: 15px 0;"><h5>تحليل الموسمية:</h5>`;
-                html += `
-                    <div class="stat-row">
-                        <span>أوقات الذروة:</span>
-                        <span>${report.data.seasonalAnalysis.peak}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span>أوقات الانخفاض:</span>
-                        <span>${report.data.seasonalAnalysis.low}</span>
-                    </div>
-                `;
-            }
-
-            domUtils.getElementById('forecastReportContent').innerHTML = html;
-        } catch (error) {
-            console.error('Error generating forecast report:', error);
-            domUtils.getElementById('forecastReportContent').innerHTML = `<p style="color: var(--danger);">خطأ: ${error.message}</p>`;
+    exportReports(format) {
+        if (!this.lastReports) {
+            notificationUtils.showToast('حمّل التقارير أولاً', 'info');
+            return;
         }
-    }
 
-    // Export Report to PDF
-    exportReportToPDF(reportType) {
-        try {
-            let content = '';
-            let title = '';
+        const { salesReport, branchReport, inventoryReport, productReport } = this.lastReports;
+        let content, mime, filename;
 
-            switch(reportType) {
-                case 'sales':
-                    content = domUtils.getElementById('salesReportContent').innerText;
-                    title = 'تقرير المبيعات';
-                    break;
-                case 'inventory':
-                    content = domUtils.getElementById('inventoryReportContent').innerText;
-                    title = 'تقرير المخزون';
-                    break;
-                case 'product':
-                    content = domUtils.getElementById('productReportContent').innerText;
-                    title = 'تقرير المنتجات';
-                    break;
-                case 'branch':
-                    content = domUtils.getElementById('branchReportContent').innerText;
-                    title = 'تقرير الفروع';
-                    break;
-                case 'forecast':
-                    content = domUtils.getElementById('forecastReportContent').innerText;
-                    title = 'تقرير التنبؤات';
-                    break;
-            }
-
-            const printWindow = window.open('', '', 'height=600,width=800');
-            printWindow.document.write(`
-                <html dir="rtl">
-                <head>
-                    <title>${title}</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; padding: 20px; line-height: 1.6; }
-                        h1 { text-align: center; color: #333; }
-                        .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd; }
-                        .stat-value { font-weight: bold; color: #2563eb; }
-                    </style>
-                </head>
-                <body>
-                    <h1>${title}</h1>
-                    <p>التاريخ: ${dateUtils.getCurrentDateTime()}</p>
-                    <hr>
-                    <pre style="white-space: pre-wrap; word-wrap: break-word;">${content}</pre>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-            printWindow.print();
-            notificationUtils.showToast('✅ تم طباعة التقرير', 'success');
-        } catch (error) {
-            console.error('Error exporting report:', error);
-            notificationUtils.showToast('❌ خطأ في تصدير التقرير', 'danger');
+        if (format === 'json') {
+            content = JSON.stringify({ salesReport, branchReport, inventoryReport, productReport }, null, 2);
+            mime = 'application/json';
+            filename = `reports-${dateUtils.getCurrentDate()}.json`;
+        } else {
+            content = [salesReport, branchReport, inventoryReport, productReport]
+                .map(r => reports.exportReportAsCSV(r))
+                .join('\n\n');
+            mime = 'text/csv';
+            filename = `reports-${dateUtils.getCurrentDate()}.csv`;
         }
+
+        const blob = new Blob([content], { type: mime });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(url);
+        notificationUtils.showToast('تم تنزيل التقرير', 'success');
     }
 
     // ========== Settings ==========
     async loadSettings() {
-        // TODO: Implement settings UI
-        notificationUtils.showToast('الإعدادات قيد التطوير', 'info');
+        const user = auth.getCurrentUser();
+        const profileEl = domUtils.getElementById('userProfile');
+
+        if (user && profileEl) {
+            const permissions = auth.getPermissions();
+            const permissionLabels = {
+                read: 'عرض', write: 'إضافة/تعديل', delete: 'حذف',
+                export: 'تصدير', import: 'استيراد', 'manage-users': 'إدارة المستخدمين',
+                'delete-own': 'حذف (خاص)', 'write-own': 'إضافة/تعديل (خاص)'
+            };
+
+            profileEl.innerHTML = `
+                <div style="display:flex; align-items:center; gap: var(--spacing-4); margin-bottom: var(--spacing-4);">
+                    <div style="font-size: 2.5rem;">${user.avatar || '👤'}</div>
+                    <div>
+                        <div style="font-weight:700; font-size:1.1rem;">${user.name}</div>
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">${auth.getRoleLabel(user.role)}</div>
+                    </div>
+                </div>
+                <div class="metric"><span>اسم المستخدم</span><span>${user.username}</span></div>
+                <div class="metric"><span>البريد الإلكتروني</span><span>${user.email}</span></div>
+                <div class="metric"><span>الصلاحيات</span><span>${permissions.map(p => permissionLabels[p] || p).join('، ')}</span></div>
+            `;
+        }
+
+        const activityEl = domUtils.getElementById('activityLog');
+        if (activityEl) {
+            try {
+                const log = await auth.getActivityLog(10);
+                activityEl.innerHTML = log.length === 0
+                    ? '<div class="empty-state">لا يوجد نشاط مسجل</div>'
+                    : log.map(entry => `
+                        <div class="metric">
+                            <span>${entry.description}</span>
+                            <span style="color: var(--text-secondary); font-size: 0.8rem;">${dateUtils.formatDateTime(entry.timestamp)}</span>
+                        </div>
+                    `).join('');
+            } catch (error) {
+                console.error('Error loading activity log:', error);
+                activityEl.innerHTML = '<div class="empty-state">تعذر تحميل سجل النشاط</div>';
+            }
+        }
     }
 
     async performBackup() {
@@ -1423,7 +1461,16 @@ class PointMarketApp {
 
         if (domUtils.hasClass(panel, 'active')) {
             this.updateNotificationsList();
+            notifications.markAllAsRead().then(() => this.updateNotificationBadge());
         }
+    }
+
+    updateNotificationBadge() {
+        const badge = domUtils.getElementById('notificationBadge');
+        if (!badge) return;
+        const count = notifications.getUnreadCount();
+        badge.textContent = count > 99 ? '99+' : String(count);
+        badge.style.display = count === 0 ? 'none' : '';
     }
 
     updateNotificationsList() {
@@ -1482,7 +1529,7 @@ class PointMarketApp {
             notificationUtils.showToast(`تم استيراد ${results.success} منتج بنجاح`, 'success');
 
             // Reload products list
-            this.loadProductsPage();
+            this.loadProducts();
 
             // Reset file input
             event.target.value = '';
@@ -1518,6 +1565,21 @@ class PointMarketApp {
             const excelImporter = new ExcelImporterManager(db, products);
             excelImporter.exportTemplate();
             notificationUtils.showToast('تم تنزيل النموذج بنجاح', 'success');
+        } catch (error) {
+            notificationUtils.showToast('خطأ: ' + error.message, 'danger');
+        }
+    }
+
+    exportProductsToExcel() {
+        try {
+            const allProducts = products.getProducts();
+            if (allProducts.length === 0) {
+                notificationUtils.showToast('لا توجد منتجات لتصديرها', 'info');
+                return;
+            }
+            const excelImporter = new ExcelImporterManager(db, products);
+            excelImporter.exportProducts(allProducts);
+            notificationUtils.showToast('تم تصدير المنتجات بنجاح', 'success');
         } catch (error) {
             notificationUtils.showToast('خطأ: ' + error.message, 'danger');
         }

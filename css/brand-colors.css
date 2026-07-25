@@ -39,8 +39,18 @@
 }
 
 .logo-icon {
-    font-size: 1.5rem;
     margin-right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+}
+
+.logo-icon svg {
+    width: 32px;
+    height: 32px;
 }
 
 /* ========== Navigation Styling ========== */
@@ -192,9 +202,16 @@
 }
 
 .app-logo {
-    font-size: 3rem;
     margin-bottom: var(--spacing-4);
     animation: bounce 2s infinite;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-logo svg {
+    width: 80px;
+    height: 80px;
 }
 
 @keyframes bounce {
