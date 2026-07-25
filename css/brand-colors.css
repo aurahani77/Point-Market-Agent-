@@ -1,0 +1,313 @@
+/* ========== Brand Colors ========== */
+/* Point Market Brand */
+
+:root {
+    /* Primary Colors */
+    --primary-blue: #0099cc;      /* Teal Blue */
+    --primary-yellow: #ffc600;    /* Golden Yellow */
+
+    /* Brand Palette */
+    --brand-dark-blue: #0077aa;
+    --brand-light-blue: #00bbee;
+    --brand-yellow: #ffc600;
+    --brand-yellow-light: #ffdd33;
+
+    /* Updated Primary */
+    --primary: #0099cc;
+    --primary-dark: #0077aa;
+    --primary-light: #00bbee;
+
+    /* Accent */
+    --accent: #ffc600;
+    --accent-light: #ffdd33;
+}
+
+/* ========== Header Styling with Brand ========== */
+.sidebar {
+    background: linear-gradient(135deg, #0099cc 0%, #0077aa 100%);
+}
+
+.sidebar-header {
+    background: linear-gradient(135deg, #0077aa 0%, #005588 100%);
+    border-bottom: 3px solid #ffc600;
+}
+
+.logo {
+    color: white;
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.logo-icon {
+    font-size: 1.5rem;
+    margin-right: 8px;
+}
+
+/* ========== Navigation Styling ========== */
+.nav-link {
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 198, 0, 0.1);
+    color: #ffdd33;
+}
+
+.nav-link.active {
+    background-color: rgba(255, 198, 0, 0.2);
+    color: #ffdd33;
+    border-left: 4px solid #ffc600;
+    padding-left: calc(var(--spacing-4) - 4px);
+}
+
+/* ========== Button Styling ========== */
+.btn-primary {
+    background: linear-gradient(135deg, #0099cc 0%, #0077aa 100%);
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0077aa 0%, #005588 100%);
+    box-shadow: 0 4px 12px rgba(0, 153, 204, 0.3);
+}
+
+.btn-primary:active {
+    background: #005588;
+    transform: translateY(2px);
+}
+
+.btn-accent {
+    background: #ffc600;
+    color: #005588;
+    border: none;
+    font-weight: 600;
+}
+
+.btn-accent:hover {
+    background: #ffdd33;
+    box-shadow: 0 4px 12px rgba(255, 198, 0, 0.3);
+}
+
+/* ========== KPI Cards ========== */
+.kpi-card {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 2px solid #0099cc;
+}
+
+.kpi-card:hover {
+    border-color: #ffc600;
+    box-shadow: 0 8px 20px rgba(0, 153, 204, 0.2);
+}
+
+.kpi-icon {
+    background: linear-gradient(135deg, rgba(0, 153, 204, 0.1) 0%, rgba(255, 198, 0, 0.05) 100%);
+    color: #0099cc;
+}
+
+.kpi-value {
+    color: #0077aa;
+}
+
+/* ========== Chart Styling ========== */
+.chart-container {
+    border-top: 4px solid #0099cc;
+}
+
+.chart-container h3 {
+    color: #0077aa;
+}
+
+/* ========== Alert Styling ========== */
+.alert-item.success {
+    border-left-color: #0099cc;
+    background-color: rgba(0, 153, 204, 0.05);
+}
+
+.alert-item.info {
+    border-left-color: #0099cc;
+    background-color: rgba(0, 153, 204, 0.05);
+}
+
+.alert-item.warning {
+    border-left-color: #ffc600;
+    background-color: rgba(255, 198, 0, 0.05);
+}
+
+/* ========== Report Styling ========== */
+.report-section {
+    border-top: 4px solid #0099cc;
+    background: linear-gradient(to bottom, #f8fbff 0%, #ffffff 100%);
+}
+
+.report-section h3 {
+    color: #0077aa;
+    border-bottom: 2px solid #ffc600;
+    padding-bottom: 10px;
+}
+
+.stat-row {
+    border-bottom: 1px solid #e0e7ff;
+}
+
+.stat-value {
+    color: #0099cc;
+    font-weight: 700;
+}
+
+/* ========== Recommendation Cards ========== */
+.ai-recommendation {
+    border-left: 4px solid #0099cc;
+    background-color: rgba(0, 153, 204, 0.05);
+}
+
+.ai-recommendation.high {
+    border-left-color: #ffc600;
+    background-color: rgba(255, 198, 0, 0.05);
+}
+
+.ai-recommendation.medium {
+    border-left-color: #ff9500;
+    background-color: rgba(255, 149, 0, 0.05);
+}
+
+.ai-recommendation.low {
+    border-left-color: #10b981;
+    background-color: rgba(16, 185, 129, 0.05);
+}
+
+/* ========== Login Page ========== */
+.login-page {
+    background: linear-gradient(135deg, #0099cc 0%, #0077aa 100%);
+}
+
+.login-card {
+    box-shadow: 0 20px 60px rgba(0, 77, 136, 0.3);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: var(--spacing-8);
+}
+
+.app-logo {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-4);
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.login-header h1 {
+    color: #0077aa;
+    margin-bottom: var(--spacing-2);
+}
+
+.login-header p {
+    color: #0099cc;
+    font-weight: 500;
+}
+
+/* ========== Status Badges ========== */
+.status-low {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.status-balanced {
+    background: linear-gradient(135deg, rgba(0, 153, 204, 0.1), rgba(255, 198, 0, 0.1));
+    color: #0077aa;
+    font-weight: 600;
+}
+
+.status-high {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+/* ========== Header Accent ========== */
+.header {
+    border-bottom: 3px solid #0099cc;
+}
+
+/* ========== Links and Interactive ========== */
+a {
+    color: #0099cc;
+}
+
+a:hover {
+    color: #0077aa;
+}
+
+/* ========== Form Elements ========== */
+.form-group label {
+    color: #0077aa;
+    font-weight: 600;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #0099cc;
+    box-shadow: 0 0 0 3px rgba(0, 153, 204, 0.1);
+}
+
+/* ========== Table Styling ========== */
+table {
+    border-collapse: collapse;
+}
+
+thead {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border-bottom: 2px solid #0099cc;
+}
+
+thead th {
+    color: #0077aa;
+    font-weight: 700;
+}
+
+tbody tr:hover {
+    background-color: rgba(0, 153, 204, 0.05);
+}
+
+/* ========== Dark Mode Adjustments ========== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: #00bbee;
+        --accent: #ffdd33;
+    }
+
+    .kpi-card {
+        background: linear-gradient(135deg, rgba(0, 153, 204, 0.1) 0%, rgba(255, 198, 0, 0.05) 100%);
+        border-color: #00bbee;
+    }
+
+    .nav-link.active {
+        border-left-color: #ffdd33;
+    }
+
+    thead {
+        background: rgba(0, 153, 204, 0.1);
+    }
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+    .sidebar {
+        background: linear-gradient(135deg, #0099cc 0%, #0077aa 100%);
+    }
+
+    .nav-link.active {
+        border-left: 3px solid #ffc600;
+        padding-left: calc(var(--spacing-4) - 3px);
+    }
+}
