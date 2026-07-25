@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+        .section { background: white; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .error { color: #d32f2f; font-weight: bold; }
+        .success { color: #388e3c; font-weight: bold; }
+        .warning { color: #f57c00; font-weight: bold; }
+        h2 { margin-top: 0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Point Market System Debug Test</h1>
+
+    <div class="section">
+        <h2>Loading index.html in iframe...</h2>
+        <iframe id="testFrame" src="index.html" style="width: 100%; height: 600px; border: 1px solid #ccc;"></iframe>
+    </div>
+
+    <div class="section">
+        <h2>Console Output from iframe:</h2>
+        <pre id="consoleOutput" style="background: #f9f9f9; padding: 10px; overflow-y: auto; height: 200px;"></pre>
+    </div>
+
+    <div class="section">
+        <h2>Page Status:</h2>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        const consoleOutput = document.getElementById('consoleOutput');
+        const statusDiv = document.getElementById('status');
+        const testFrame = document.getElementById('testFrame');
+
+        // Monitor iframe errors
+        testFrame.onload = function() {
+            console.log('✅ iframe loaded');
+
+            try {
+                const doc = testFrame.contentDocument || testFrame.contentWindow.document;
+                const win = testFrame.contentWindow;
+
+                // Log DOM info
+                const loginForm = doc.querySelector('#loginForm');
+                const loginPage = doc.querySelector('#loginPage');
+                const app = doc.querySelector('#app');
+
+                let status = `
+✅ iframe loaded successfully
+
+DOM Elements:
+  - app container: ${!!app}
+  - login page: ${!!loginPage}
+  - login form: ${!!loginForm}
+  - login page display: ${loginPage ? window.getComputedStyle(loginPage).display : 'N/A'}
+
+Window Variables:
+  - auth: ${typeof win.auth}
+  - domUtils: ${typeof win.domUtils}
+  - app instance: ${typeof win.app}
+  - db: ${typeof win.db}
+  - Chart: ${typeof win.Chart}
+  - XLSX: ${typeof win.XLSX}
+  - L (Leaflet): ${typeof win.L}
+
+Libraries Status:
+  - Chart.js loaded: ${!!win.Chart}
+  - Leaflet loaded: ${!!win.L}
+  - XLSX loaded: ${!!win.XLSX}
+  - jsPDF loaded: ${!!win.jsPDF}
+                `;
+
+                statusDiv.innerHTML = '<pre>' + status + '</pre>';
+
+                // Try to see console errors from iframe
+                const originalError = win.console.error;
+                win.console.error = function(...args) {
+                    consoleOutput.textContent += '❌ ERROR: ' + args.join(' ') + '\n';
+                    originalError.apply(win.console, args);
+                };
+
+                const originalWarn = win.console.warn;
+                win.console.warn = function(...args) {
+                    consoleOutput.textContent += '⚠️ WARN: ' + args.join(' ') + '\n';
+                    originalWarn.apply(win.console, args);
+                };
+
+                const originalLog = win.console.log;
+                win.console.log = function(...args) {
+                    consoleOutput.textContent += '📝 LOG: ' + args.join(' ') + '\n';
+                    originalLog.apply(win.console, args);
+                };
+
+                // Check for errors
+                win.addEventListener('error', (e) => {
+                    consoleOutput.textContent += '\n❌ RUNTIME ERROR:\n' + e.message + '\n' + e.filename + ':' + e.lineno + '\n';
+                });
+
+            } catch (e) {
+                statusDiv.innerHTML = '<div class="error">Error accessing iframe: ' + e.message + '</div>';
+                consoleOutput.textContent = '❌ ' + e.message;
+            }
+        };
+
+        testFrame.onerror = function(e) {
+            statusDiv.innerHTML = '<div class="error">iframe load error: ' + e.message + '</div>';
+        };
+
+        // Set timeout to check if loaded
+        setTimeout(() => {
+            if (!testFrame.contentDocument) {
+                statusDiv.innerHTML = '<div class="error">⚠️ Cannot access iframe content (CORS or permission issue)</div>';
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
