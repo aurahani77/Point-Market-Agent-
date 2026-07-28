@@ -1,0 +1,14 @@
+{
+  "id": "xquik-dev-hermes-tweet-skill-md",
+  "name": "hermes-tweet-xquik",
+  "author": "Xquik-dev",
+  "authorAvatar": "https://avatars.githubusercontent.com/u/263527900?v=4",
+  "description": "Use Hermes Tweet and Xquik for X/Twitter agent workflows. Plan social listening, account and follower analysis, post research, monitors, webhook alerts, REST API calls, MCP client setup, and safe tweet actions.",
+  "githubUrl": "https://github.com/Xquik-dev/hermes-tweet",
+  "stars": 16,
+  "forks": 0,
+  "updatedAt": 1783047369,
+  "hasMarketplace": false,
+  "path": "SKILL.md",
+  "branch": "master"
+}
