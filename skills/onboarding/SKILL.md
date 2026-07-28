@@ -1,427 +1,220 @@
 ---
 name: onboarding
-description: Personalize COG for your workflow - creates profile, interests, and watchlist files with guided setup (run this first!)
+description: When the user wants to optimize post-signup onboarding, user activation, first-run experience, or time-to-value. Also use when the user mentions "onboarding flow," "activation rate," "user activation," "first-run experience," "empty states," "onboarding checklist," "aha moment," "new user experience," "users aren't activating," "nobody completes setup," "low activation rate," "users sign up but don't use the product," "time to value," or "first session experience." Use this whenever users are signing up but not sticking around. For signup/registration optimization, see signup. For ongoing email sequences, see emails.
+metadata:
+  version: 2.0.0
 ---
 
-# COG Onboarding Skill
+# Onboarding CRO
 
-## Purpose
-Welcome new users and collect essential information to personalize their COG experience. All configuration is stored as natural markdown files within the vault structure, following COG's philosophy of transparent, editable knowledge.
+You are an expert in user onboarding and activation. Your goal is to help users reach their "aha moment" as quickly as possible and establish habits that lead to long-term retention.
 
-## When to Invoke
-- User explicitly requests `/onboarding` or mentions "onboarding" or "setup COG"
-- User is new and hasn't completed onboarding yet
-- User wants to update their profile or add new projects
-- Any time profile customization is needed
+## Initial Assessment
 
-## Process Flow
+**Check for product marketing context first:**
+If `.agents/product-marketing.md` exists (or `.claude/product-marketing.md`, or the legacy `product-marketing-context.md` filename, in older setups), read it before asking questions. Use that context and only ask for information not already covered or specific to this task.
 
-### 1. Welcome Message
-Greet the user warmly and explain what COG is:
-```
-Welcome to COG - your self-evolving second brain powered by Claude + Obsidian + Git!
+Before providing recommendations, understand:
 
-COG helps you:
-- Capture thoughts and insights through brain dumps
-- Get daily intelligence briefings tailored to your interests
-- Build and consolidate knowledge over time
-- Track patterns in your thinking and development
-
-Before we begin, I'll ask you a few questions to personalize your experience. This will take about 3-5 minutes.
-
-All your preferences will be stored as readable markdown files in your vault, so you can edit them anytime.
-```
-
-### 2. Check for Existing Profile
-
-Look for `00-inbox/MY-PROFILE.md`. If it exists:
-```
-I found an existing profile! Would you like to:
-1. Update your profile
-2. Add new projects
-3. Update interest areas
-4. View current profile
-5. Start fresh (archive old profile)
-
-What would you like to do? (1-5)
-```
-
-### 3. Information Collection (Keep it Simple!)
-
-Ask only essential questions in a conversational way:
-
-**Question 1: What's your name?**
-- Just first name is fine, or full name if they prefer
-- Store in: `00-inbox/MY-PROFILE.md`
-
-**Question 2: What do you do? (Your job/role/main activity)**
-- This helps personalize content relevance
-- Examples: "Software engineer", "Product manager", "Student studying AI", "Entrepreneur"
-- Store in: `00-inbox/MY-PROFILE.md`
-
-**Question 3: What topics are you interested in?**
-- Ask them to list 3-5 main topics they want to learn about or stay updated on
-- Examples: "AI/ML, startups, health optimization", "leadership, product strategy, design"
-- Store in: `00-inbox/MY-INTERESTS.md`
-- Keep it natural - don't make them choose from categories
-
-**Question 4: Where do you like to get your news and information?**
-- Examples: "Hacker News, Twitter, research papers", "TechCrunch, newsletters, podcasts"
-- Store in: `00-inbox/MY-INTERESTS.md` under "Preferred Sources"
-- This helps COG understand what sources to prioritize
-
-**Question 5: Do you have any active projects you're working on?**
-- Optional - if yes, ask for project names (comma-separated)
-- For each project, create:
-  - `04-projects/[project-slug]/PROJECT-OVERVIEW.md` with basic structure
-  - Full directory structure
-- If no projects, skip this entirely
-
-**Question 6: Any companies, competitors, or people you want to keep an eye on?** (Optional)
-- Optional - if yes, collect the list
-- Store in: `03-professional/COMPETITIVE-WATCHLIST.md`
-- Used for automatic extraction in braindumps
-
-### 4. Generate Profile Documents
-
-Create the following markdown files:
-
-#### `00-inbox/MY-PROFILE.md`
-```markdown
----
-type: profile
-created: YYYY-MM-DD
-onboarding_completed: true
-tags: ["#profile", "#config", "#cog"]
----
-
-# My COG Profile
-
-## About Me
-- **Name**: [Name]
-- **Role**: [Job/role/main activity]
-- **Profile Created**: [Date]
-
-## Active Projects
-[If they have projects:]
-- [[04-projects/[slug]/PROJECT-OVERVIEW|Project Name 1]]
-- [[04-projects/[slug]/PROJECT-OVERVIEW|Project Name 2]]
-
-[If no projects:]
-*No active projects yet. Add them anytime by editing this file or running the onboarding skill again.*
-
-## Related
-- [[MY-INTERESTS|My Interests & News Sources]]
-- [[03-professional/COMPETITIVE-WATCHLIST|Competitive Watchlist]] *(if applicable)*
-
-## Notes
-*Feel free to add notes here about your COG usage, preferences, or anything else.*
+1. **Product Context** - What type of product? B2B or B2C? Core value proposition?
+2. **Activation Definition** - What's the "aha moment"? What action indicates a user "gets it"?
+3. **Current State** - What happens after signup? Where do users drop off?
 
 ---
 
-*Edit this file anytime to update your profile. COG reads it when you use skills.*
-```
+## Core Principles
 
-#### `00-inbox/MY-INTERESTS.md`
-```markdown
----
-type: interests
-created: YYYY-MM-DD
-tags: ["#interests", "#daily-brief", "#config"]
----
+### 1. Time-to-Value Is Everything
+Remove every step between signup and experiencing core value.
 
-# My Interests & News Sources
+### 2. One Goal Per Session
+Focus first session on one successful outcome. Save advanced features for later.
 
-*These topics guide my daily intelligence briefings.*
+### 3. Do, Don't Show
+Interactive > Tutorial. Doing the thing > Learning about the thing.
 
-## Topics I'm Interested In
-- [Topic 1]
-- [Topic 2]
-- [Topic 3]
-- [Topic 4]
-- [Topic 5]
-
-## Preferred News Sources
-*Where I like to get information:*
-- [Source 1]
-- [Source 2]
-- [Source 3]
-
-## Notes
-*Add any additional context about your interests here.*
+### 4. Progress Creates Motivation
+Show advancement. Celebrate completions. Make the path visible.
 
 ---
 
-*Update this file anytime as your interests evolve. Just edit and save—COG will pick up the changes.*
-```
+## Defining Activation
 
-#### `03-professional/COMPETITIVE-WATCHLIST.md` (if applicable)
-```markdown
----
-type: competitive-intelligence
-created: YYYY-MM-DD
-tags: ["#competitive", "#intelligence", "#tracking"]
----
+### Find Your Aha Moment
 
-# Competitive Watchlist
+The action that correlates most strongly with retention:
+- What do retained users do that churned users don't?
+- What's the earliest indicator of future engagement?
 
-*Companies, people, or organizations I'm keeping an eye on.*
+**Examples by product type:**
+- Project management: Create first project + add team member
+- Analytics: Install tracking + see first report
+- Design tool: Create first design + export/share
+- Marketplace: Complete first transaction
 
-## Watching
-- [Company/Person 1]
-- [Company/Person 2]
-- [Company/Person 3]
-
-## Why I'm Tracking Them
-*Add context here about why these matter to you or your projects.*
+### Activation Metrics
+- % of signups who reach activation
+- Time to activation
+- Steps to activation
+- Activation by cohort/source
 
 ---
 
-*When you mention these in braindumps, COG will automatically extract the intel to your project competitive folders.*
-```
+## Onboarding Flow Design
 
-#### For Each Project: `04-projects/[project-slug]/PROJECT-OVERVIEW.md`
-```markdown
----
-type: project-overview
-project: [project-name]
-slug: [project-slug]
-created: YYYY-MM-DD
-status: active
-tags: ["#project", "#overview"]
----
+### Immediate Post-Signup (First 30 Seconds)
 
-# [Project Name]
+| Approach | Best For | Risk |
+|----------|----------|------|
+| Product-first | Simple products, B2C, mobile | Blank slate overwhelm |
+| Guided setup | Products needing personalization | Adds friction before value |
+| Value-first | Products with demo data | May not feel "real" |
 
-## What is this project?
-[Brief description - leave for user to fill in]
+**Whatever you choose:**
+- Clear single next action
+- No dead ends
+- Progress indication if multi-step
 
-## Current Status
-*What phase are you in? What's happening now?*
+### Onboarding Checklist Pattern
 
-## Project Resources
-- [[braindumps/|Project Braindumps]]
-- [[competitive/|Competitive Intelligence]]
-- [[content/|Content & Assets]]
-- [[planning/|Planning Documents]]
+**When to use:**
+- Multiple setup steps required
+- Product has several features to discover
+- Self-serve B2B products
 
-## Next Steps
-- [ ] [Action item 1]
-- [ ] [Action item 2]
+**Best practices:**
+- 3-7 items (not overwhelming)
+- Order by value (most impactful first)
+- Start with quick wins
+- Progress bar/completion %
+- Celebration on completion
+- Dismiss option (don't trap users)
 
----
+### Empty States
 
-*This overview helps COG organize your project-related thoughts and updates.*
-```
+Empty states are onboarding opportunities, not dead ends.
 
-### 5. Create Directory Structure
-Based on configuration, create personalized structure:
+**Good empty state:**
+- Explains what this area is for
+- Shows what it looks like with data
+- Clear primary action to add first item
+- Optional: Pre-populate with example data
 
-**Base Structure (Always):**
-```
-00-inbox/
-01-daily/
-  briefs/
-  checkins/
-02-personal/
-  braindumps/
-  development/
-  wellness/
-03-professional/
-  braindumps/
-  leadership/
-  strategy/
-  skills/
-04-projects/
-05-knowledge/
-  consolidated/
-  patterns/
-  timeline/
-06-templates/
-```
+### Tooltips and Guided Tours
 
-**Project-Specific (For each listed project):**
-```
-04-projects/[project-slug]/
-  PROJECT-OVERVIEW.md
-  braindumps/
-  competitive/
-  content/
-  planning/
-  resources/
-```
+**When to use:** Complex UI, features that aren't self-evident, power features users might miss
 
-### 6. Create Welcome Guide
-
-Generate: `00-inbox/WELCOME-TO-COG.md`
-
-```markdown
----
-type: guide
-created: YYYY-MM-DD
-tags: ["#welcome", "#getting-started", "#cog"]
----
-
-# Welcome to Your COG Second Brain, [Name]!
-
-Your COG is now personalized and ready to use. Here's how to get started:
-
-## Your Profile Documents
-
-I've created these documents to store your preferences:
-
-- **[[MY-PROFILE]]** - Your basic info and workflow preferences
-- **[[MY-INTERESTS]]** - Topics for your daily briefs
-- **[[03-professional/COMPETITIVE-WATCHLIST]]** - Companies you're tracking *(if applicable)*
-
-**You can edit these files anytime.** COG reads them when you use skills, so your changes take effect immediately.
-
-## Quick Start Skills
-
-### 1. Daily Morning Routine
-Invoke the daily-brief skill to get your personalized intelligence briefing covering:
-[List their selected interest areas]
-
-### 2. Capture Your Thoughts
-Use the braindump skill to quickly capture ideas, insights, and thoughts. Your braindumps will automatically be categorized into:
-[List their focus domains]
-
-Choose from your active projects:
-[List their projects with links]
-
-### 3. Weekly Reflection
-Every week, use the weekly-checkin skill to review your week's insights and patterns.
-
-## Your Active Projects
-
-[If they have projects]
-You're tracking these projects:
-- [[04-projects/[slug]/PROJECT-OVERVIEW|Project 1]]
-- [[04-projects/[slug]/PROJECT-OVERVIEW|Project 2]]
-
-When you use the braindump skill, select the project to automatically file your thoughts in the right place.
-
-## How COG Uses Your Profile
-
-**Daily Briefs**: Uses [[MY-INTERESTS]] to curate relevant news
-**Braindumps**: Offers your projects from [[MY-PROFILE]] as options
-**Competitive Intel**: Auto-extracts mentions of companies in [[COMPETITIVE-WATCHLIST]]
-**Weekly Check-ins**: Reviews progress across your domains
-
-## Next Steps
-
-1. **Try your first braindump**: Use the braindump skill and start writing
-2. **Get your daily brief**: Invoke the daily-brief skill to see curated intelligence
-3. **Explore your vault**: All your files are organized in the sidebar
-4. **Edit your profile**: Open [[MY-PROFILE]] and customize anytime
-
-## Tips for Success
-
-- **Don't overthink it**: Just dump your thoughts, COG will help organize
-- **Be consistent**: Daily briefs and braindumps work best as habits
-- **Review weekly**: Use the weekly-checkin skill to see patterns emerge
-- **Evolve your setup**: Edit your profile files anytime or run onboarding again to add projects
-
-## Getting Help
-
-- Check `SETUP.md` for detailed guides
-- Visit the GitHub repo for documentation
-
-**Your second brain is learning about you. Let's begin!**
+**Best practices:**
+- Max 3-5 steps per tour
+- Dismissable at any time
+- Don't repeat for returning users
 
 ---
 
-*You can archive or delete this welcome guide once you're comfortable with COG.*
+## Multi-Channel Onboarding
+
+### Email + In-App Coordination
+
+**Trigger-based emails:**
+- Welcome email (immediate)
+- Incomplete onboarding (24h, 72h)
+- Activation achieved (celebration + next step)
+- Feature discovery (days 3, 7, 14)
+
+**Email should:**
+- Reinforce in-app actions, not duplicate them
+- Drive back to product with specific CTA
+- Be personalized based on actions taken
+
+---
+
+## Handling Stalled Users
+
+### Detection
+Define "stalled" criteria (X days inactive, incomplete setup)
+
+### Re-engagement Tactics
+
+1. **Email sequence** - Reminder of value, address blockers, offer help
+2. **In-app recovery** - Welcome back, pick up where left off
+3. **Human touch** - For high-value accounts, personal outreach
+
+---
+
+## Measurement
+
+### Key Metrics
+
+| Metric | Description |
+|--------|-------------|
+| Activation rate | % reaching activation event |
+| Time to activation | How long to first value |
+| Onboarding completion | % completing setup |
+| Day 1/7/30 retention | Return rate by timeframe |
+
+### Funnel Analysis
+
+Track drop-off at each step:
+```
+Signup → Step 1 → Step 2 → Activation → Retention
+100%      80%       60%       40%         25%
 ```
 
-### 7. First Action Prompts
-After setup, guide the user to their first action:
+Identify biggest drops and focus there.
 
-```
-Great! Your COG is now configured.
+---
 
-I've created these profile documents for you:
-- MY-PROFILE.md (your basic preferences)
-- MY-INTERESTS.md (topics for daily briefs)
-[If applicable:] - COMPETITIVE-WATCHLIST.md (companies to track)
-[If applicable:] - PROJECT-OVERVIEW.md files for each project
+## Output Format
 
-All files are in your vault and can be edited anytime.
+### Onboarding Audit
+For each issue: Finding → Impact → Recommendation → Priority
 
-Would you like to:
+### Onboarding Flow Design
+- Activation goal
+- Step-by-step flow
+- Checklist items (if applicable)
+- Empty state copy
+- Email sequence triggers
+- Metrics plan
 
-1. **Try your first braindump** - Capture what's on your mind right now
-2. **Get your daily brief** - See today's intelligence report
-3. **Review your profile** - Open MY-PROFILE.md to see/edit settings
-4. **Start later** - You're all set, invoke skills when ready
+---
 
-What would you like to do? (1-4)
-```
+## Common Patterns by Product Type
 
-## Configuration Update Mode
+| Product Type | Key Steps |
+|--------------|-----------|
+| B2B SaaS | Setup wizard → First value action → Team invite → Deep setup |
+| Marketplace | Complete profile → Browse → First transaction → Repeat loop |
+| Mobile App | Permissions → Quick win → Push setup → Habit loop |
+| Content Platform | Follow/customize → Consume → Create → Engage |
 
-If user runs onboarding after initial setup (MY-PROFILE.md exists):
+---
 
-```
-You've already completed onboarding! Would you like to:
+## Experiment Ideas
 
-1. **Update your profile** - Edit MY-PROFILE.md with new preferences
-2. **Add new interests** - Update MY-INTERESTS.md with new topics
-3. **Add new projects** - Create new project structures
-4. **View current profile** - See your current MY-PROFILE.md
+When recommending experiments, consider tests for:
+- Flow simplification (step count, ordering)
+- Progress and motivation mechanics
+- Personalization by role or goal
+- Support and help availability
 
-What would you like to do? (1-4)
-```
+**For comprehensive experiment ideas**: See [references/experiments.md](references/experiments.md)
 
-## Success Criteria
+---
 
-Onboarding is successful when:
-1. ✅ `MY-PROFILE.md` created in `00-inbox/`
-2. ✅ `MY-INTERESTS.md` created in `00-inbox/`
-3. ✅ Project directories and overviews created (if applicable)
-4. ✅ `WELCOME-TO-COG.md` guide created
-5. ✅ User understands next steps and where their profile is stored
+## Task-Specific Questions
 
-## Error Handling
+1. What action most correlates with retention?
+2. What happens immediately after signup?
+3. Where do users currently drop off?
+4. What's your activation rate target?
+5. Do you have cohort analysis on successful vs. churned users?
 
-**If profile already exists:**
-- Don't overwrite, offer update mode instead
-- Preserve existing content, only append/modify requested sections
-- Archive old version to `00-inbox/archive/MY-PROFILE-YYYY-MM-DD.md` if starting fresh
+---
 
-**If directory creation fails:**
-- Report which directories couldn't be created
-- Provide manual creation instructions
-- Continue with rest of setup
+## Related Skills
 
-**If user exits mid-onboarding:**
-- Create partial profile with note: "Onboarding incomplete - run onboarding skill to finish"
-- Save what was collected so far
-- Resume from last completed step on next run
-
-## Privacy & Data
-
-All configuration data is stored as markdown files in:
-- `00-inbox/MY-PROFILE.md` - Basic profile
-- `00-inbox/MY-INTERESTS.md` - Interest areas
-- `03-professional/COMPETITIVE-WATCHLIST.md` - Competitive tracking
-- `04-projects/[project]/PROJECT-OVERVIEW.md` - Project details
-
-Benefits of markdown storage:
-- ✅ Human-readable and editable
-- ✅ Version controlled with Git
-- ✅ Searchable in Obsidian
-- ✅ Linkable from other notes
-- ✅ No parsing required, just read as text
-- ✅ Can be archived, moved, organized like any other note
-
-## Philosophy
-
-COG's configuration is **knowledge, not configuration**. By storing preferences as markdown notes:
-- They're part of your knowledge base, not hidden config files
-- You can link to them, reference them, evolve them
-- They have context and can include your own notes
-- They're transparent and auditable
-- They benefit from all of Obsidian's features (tags, links, search, graph view)
-
-This is "configuration as knowledge" - your preferences are themselves notes in your second brain.
+- **signup**: For optimizing the signup before onboarding
+- **emails**: For onboarding email series
+- **paywalls**: For converting to paid during/after onboarding
+- **ab-testing**: For testing onboarding changes
