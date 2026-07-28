@@ -1,6 +1,10 @@
 # Point Market Agent - Skills Library
 
-This repository contains 552+ skills from the Microck/ordinary-claude-skills collection, organized in the `/skills` directory.
+This repository contains 600+ skills including:
+- 552+ from Microck/ordinary-claude-skills collection
+- 49 specialized marketing skills from coreyhaines31/marketingskills
+
+All skills are organized in the `/skills` directory.
 
 ## Available Skills
 
@@ -77,6 +81,71 @@ The following skills are available for Claude to use. Each skill is located in `
 - conference-talk-builder
 - content-research-writer
 
+### Marketing Skills (coreyhaines31/marketingskills)
+**SEO & Content:**
+- ai-seo
+- content-strategy
+- programmatic-seo
+- seo-audit
+- site-architecture
+
+**Advertising & Creative:**
+- ad-creative
+- ads
+- cro (Conversion Rate Optimization)
+- image
+- video
+
+**Customer & Sales:**
+- customer-research
+- churn-prevention
+- onboarding
+- revops
+- sales-enablement
+- prospecting
+
+**Email & Social:**
+- cold-email
+- emails
+- sms
+- social
+
+**Growth & Engagement:**
+- referrals
+- lead-magnets
+- marketing-loops
+- popups
+- paywalls
+- signup
+
+**Strategy & Planning:**
+- marketing-plan
+- marketing-ideas
+- marketing-psychology
+- marketing-council
+- offers
+
+**Analysis & Operations:**
+- analytics
+- attribution
+- ab-testing
+- aso (App Store Optimization)
+- competitor-profiling
+- competitors
+- directory-submissions
+
+**Specialized Marketing:**
+- co-marketing
+- community-marketing
+- influencer-marketing
+- launch
+- product-marketing
+- public-relations
+- copywriting
+- copy-editing
+- schema
+- free-tools
+
 ## Skills Directory Structure
 
 ```
@@ -103,10 +172,15 @@ To use any skill, Claude will automatically load the SKILL.md file from the resp
 - Resource links
 
 ## Total Statistics
-- **Total Skills:** 552+
-- **Total Categories:** 416
-- **Total Size:** 27MB
-- **Source:** Microck/ordinary-claude-skills repository
+- **Total Skills:** 600+
+- **Total Categories:** 465
+- **Collections:**
+  - Microck/ordinary-claude-skills: 552+ skills (416 categories)
+  - coreyhaines31/marketingskills: 49 skills (specialized marketing)
+- **Total Size:** 55MB+
+- **Sources:**
+  - Microck/ordinary-claude-skills repository
+  - coreyhaines31/marketingskills repository
 
 ## Last Updated
 2026-07-28
