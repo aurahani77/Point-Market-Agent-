@@ -1,0 +1,77 @@
+{
+  "intro_template": {
+    "version": "1.0",
+    "duration": 3,
+    "format": "mp4",
+    "styles": [
+      {
+        "name": "professional",
+        "description": "Clean, minimalist intro with brand colors",
+        "background": "gradient",
+        "text_animation": "fade_in_slide",
+        "music_intensity": "low",
+        "brand_presence": "high"
+      },
+      {
+        "name": "energetic",
+        "description": "Dynamic intro with zoom and bounce effects",
+        "background": "animated_pattern",
+        "text_animation": "zoom_bounce",
+        "music_intensity": "high",
+        "brand_presence": "medium"
+      },
+      {
+        "name": "minimal",
+        "description": "Ultra-minimal black background with text",
+        "background": "solid_black",
+        "text_animation": "typewriter",
+        "music_intensity": "silent",
+        "brand_presence": "low"
+      },
+      {
+        "name": "playful",
+        "description": "Fun, colorful intro for casual brands",
+        "background": "colorful_shapes",
+        "text_animation": "pop_in",
+        "music_intensity": "medium",
+        "brand_presence": "medium"
+      }
+    ],
+    "text_elements": {
+      "main_text": {
+        "content": "Brand Name",
+        "font_size": 72,
+        "font_weight": "bold",
+        "color": "${PRIMARY_COLOR}",
+        "alignment": "center",
+        "position": "center"
+      },
+      "tagline": {
+        "content": "Your Tagline Here",
+        "font_size": 36,
+        "font_weight": "normal",
+        "color": "${SECONDARY_COLOR}",
+        "alignment": "center",
+        "position": "below_main"
+      }
+    },
+    "audio": {
+      "music": {
+        "duration": 3,
+        "fade_in": 0.5,
+        "fade_out": 0.5,
+        "genre": "uplifting_corporate"
+      },
+      "voiceover": {
+        "enabled": false,
+        "text": ""
+      }
+    },
+    "logo": {
+      "enabled": true,
+      "position": "top_right",
+      "size": "small",
+      "animation": "fade_in"
+    }
+  }
+}
