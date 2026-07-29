@@ -1,6 +1,6 @@
-# 🎬 Video Editing & Campaign Automation Agent
+# 🎬 Video Editing & Campaign Automation Agent (Node.js)
 
-A comprehensive AI agent for analyzing, editing, and publishing video campaigns across Meta, Google Ads, and Twitter.
+A modern, production-ready **JavaScript/Node.js agent** for analyzing, editing, and publishing video campaigns across Meta, Google Ads, and Twitter.
 
 ## 🚀 Features
 
@@ -8,68 +8,63 @@ A comprehensive AI agent for analyzing, editing, and publishing video campaigns 
 - ✅ Analyze 20+ videos in batch
 - ✅ Score videos based on quality metrics (resolution, fps, bitrate, audio)
 - ✅ Automatic selection of top 3 videos
-- ✅ Detailed quality reports
+- ✅ Detailed quality reports (JSON export)
+- ✅ FFprobe-based metadata extraction
 
-### Video Editing
-- ✅ Extract best segments from videos
-- ✅ Generate AI-powered Intro/Outro sequences
-- ✅ Add branding (logos, watermarks, colors)
-- ✅ Optimize for multiple platforms
+### Video Editing (🚧 Coming Soon)
+- 🚧 Extract best segments from videos
+- 🚧 Generate AI-powered Intro/Outro sequences
+- 🚧 Add branding (logos, watermarks, colors)
+- 🚧 Optimize for multiple platforms
 
-### Design & Branding
-- ✅ Apply consistent brand identity
-- ✅ Generate design templates with AI
-- ✅ Multiple design styles (professional, energetic, minimal, playful)
-- ✅ Customizable colors, fonts, and logos
+### Design & Branding (🚧 Coming Soon)
+- 🚧 Apply consistent brand identity
+- 🚧 Generate design templates with Claude
+- 🚧 Multiple design styles (professional, energetic, minimal, playful)
+- 🚧 Customizable colors, fonts, and logos
 
-### Version Generation
-- ✅ **Vertical (9:16)**: Instagram Stories, Reels, TikTok
-- ✅ **Square (1:1)**: Instagram Feed, Facebook Feed
-- ✅ **Horizontal (16:9)**: YouTube, Google Ads
+### Version Generation (🚧 Coming Soon)
+- 🚧 **Vertical (9:16)**: Instagram Stories, Reels, TikTok
+- 🚧 **Square (1:1)**: Instagram Feed, Facebook Feed
+- 🚧 **Horizontal (16:9)**: YouTube, Google Ads
 
-### Publishing
-- ✅ Meta (Facebook/Instagram) - via Graph API
-- ✅ Google Ads - via Google Ads API
-- ✅ Twitter/X - via Twitter API v2
-- ✅ Batch uploading with status tracking
-- ✅ Automatic link generation
+### Publishing (🚧 Coming Soon)
+- 🚧 Meta (Facebook/Instagram) - via Graph API
+- 🚧 Google Ads - via Google Ads API
+- 🚧 Twitter/X - via Twitter API v2
+- 🚧 Batch uploading with status tracking
+- 🚧 Automatic link generation
 
 ---
 
 ## 📋 Installation
 
 ### Prerequisites
-- Python 3.8+
+- Node.js 16+ (LTS recommended)
 - FFmpeg (for video processing)
-- Git
+- npm or yarn
 
 ### Setup
 
-1. **Clone & Navigate**
+1. **Navigate to project**
 ```bash
-cd Point-Market-Agent-/agents/video-campaigns
+cd agents/video-campaigns
 ```
 
-2. **Create Virtual Environment**
+2. **Install dependencies**
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+npm install
 ```
 
-3. **Install Dependencies**
-```bash
-pip install -r requirements.txt
-```
-
-4. **Configure Environment**
+3. **Configure environment**
 ```bash
 cp .env.example .env
 # Edit .env with your API keys and settings
 ```
 
-5. **Verify Installation**
+4. **Verify installation**
 ```bash
-python -c "from modules.video_analyzer import VideoAnalyzer; print('✅ Installation successful')"
+npm run dev -- --mode analyze --input-dir ./test-videos
 ```
 
 ---
@@ -99,77 +94,39 @@ VIDEOS_TO_SELECT=3
 VERSIONS_PER_VIDEO=3
 ```
 
-### Brand Configuration (templates/brand_defaults.json)
-```json
-{
-  "brand_defaults": {
-    "colors": {
-      "primary": "#0066CC",
-      "secondary": "#FFB400",
-      "accent": "#FF6B35"
-    },
-    "typography": {
-      "font_family_primary": "Arial",
-      "sizes": {
-        "heading_1": 72,
-        "body": 24
-      }
-    }
-  }
-}
-```
-
 ---
 
 ## 🎯 Quick Start
 
-### Basic Usage
-
-```python
-from agents.video_campaigns.modules.video_analyzer import VideoAnalyzer
-from agents.video_campaigns.modules.video_editor import VideoEditor
-from agents.video_campaigns.modules.publisher import Publisher
-from pathlib import Path
-
-# 1. Analyze videos
-analyzer = VideoAnalyzer()
-videos = analyzer.analyze_directory(Path("input_videos/"))
-top_videos = analyzer.select_top_videos(count=3)
-
-# 2. Edit videos
-editor = VideoEditor()
-for video in top_videos:
-    edited = editor.add_branding(video)
-    editor.add_intro_outro(edited)
-
-# 3. Create versions
-for video in top_videos:
-    editor.create_vertical_version(video)    # 9:16
-    editor.create_square_version(video)      # 1:1
-    editor.create_horizontal_version(video)  # 16:9
-
-# 4. Publish
-publisher = Publisher()
-for video in top_videos:
-    publisher.publish_to_meta(video)
-    publisher.publish_to_google_ads(video)
-    publisher.publish_to_twitter(video)
-```
-
-### Command Line Usage
+### Basic Usage (CLI)
 
 ```bash
+# Analyze videos only
+npm run analyze -- --input-dir ./videos
+
 # Run full pipeline
-python agent.py --input-dir ./videos --mode full --auto-publish
+npm run pipeline -- --input-dir ./videos --campaign-id my-campaign
 
-# Analyze only
-python agent.py --input-dir ./videos --mode analyze
+# With development watch mode
+npm run dev -- --mode analyze --input-dir ./videos
+```
 
-# Edit only
-python agent.py --input-dir ./videos --mode edit
+### Programmatic Usage (JavaScript)
 
-# Publish only
-python agent.py --input-dir ./videos --mode publish
+```javascript
+import VideoEditingAgent from './src/index.js';
+
+const agent = new VideoEditingAgent('my-campaign');
+const result = await agent.runAnalysisOnly('./videos');
+
+console.log(result);
+// {
+//   status: 'success',
+//   videosAnalyzed: 20,
+//   videosSelected: 3,
+//   report: { ... },
+//   analysisFile: './output/..._analysis.json'
+// }
 ```
 
 ---
@@ -178,31 +135,81 @@ python agent.py --input-dir ./videos --mode publish
 
 ```
 agents/video-campaigns/
-├── agent.py                 # Main orchestration script
-├── requirements.txt         # Python dependencies
-├── .env.example             # Environment template
-├── README.md               # This file
-│
-├── modules/
-│   ├── video_analyzer.py    # Video analysis & scoring
-│   ├── video_editor.py      # Editing, branding, effects
-│   ├── design_generator.py  # AI design template creation
-│   ├── version_creator.py   # Multi-resolution versions
-│   └── publisher.py         # Platform publishing
-│
-├── utils/
-│   ├── config.py            # Configuration management
-│   ├── logger.py            # Logging & tracking
-│   └── helpers.py           # Utility functions
+├── src/
+│   ├── index.js              # Main agent (CLI entry point)
+│   ├── config.js             # ✅ Configuration management
+│   ├── logger.js             # ✅ Logging & tracking
+│   ├── VideoAnalyzer.js      # ✅ Video analysis & scoring
+│   ├── VideoEditor.js        # 🚧 Video editing (stub)
+│   ├── DesignGenerator.js    # 🚧 AI design generation (stub)
+│   ├── VersionCreator.js     # 🚧 Multi-format versions (stub)
+│   └── Publisher.js          # 🚧 Platform publishing (stub)
 │
 ├── templates/
-│   ├── intro_template.json   # Intro animation specs
-│   ├── outro_template.json   # Outro animation specs
-│   └── brand_defaults.json   # Default branding
+│   ├── intro.json            # Intro animation specs
+│   ├── outro.json            # Outro animation specs
+│   └── brand-defaults.json   # Default branding
 │
-├── data/                    # Working directory (git-ignored)
-├── output/                  # Generated videos (git-ignored)
-└── tests/                   # Unit tests
+├── tests/
+│   └── *.test.js             # Test files
+│
+├── output/                   # Generated reports (git-ignored)
+├── temp/                     # Temporary files (git-ignored)
+├── logs/                     # Log files (git-ignored)
+│
+├── package.json
+├── .env.example
+├── README.md (this file)
+└── IMPLEMENTATION_PLAN.md    # Technical roadmap
+
+```
+
+---
+
+## 📊 Analysis Report Format
+
+### JSON Output Example
+
+```json
+{
+  "timestamp": "2026-07-29T14:30:22.123Z",
+  "totalVideos": 20,
+  "selectedVideos": 3,
+  "videos": [
+    {
+      "filename": "video_1.mp4",
+      "duration": 45.3,
+      "resolution": "1920x1080",
+      "fps": 30,
+      "bitrate": 5000000,
+      "qualityScore": 0.92,
+      "audioScore": 0.75,
+      "overallScore": 0.877
+    },
+    // ... more videos
+  ],
+  "selected": ["video_1.mp4", "video_2.mp4", "video_3.mp4"],
+  "report": {
+    "overallStats": {
+      "avgScore": 0.78,
+      "maxScore": 0.92,
+      "minScore": 0.45
+    },
+    "qualityStats": {
+      "avgQuality": 0.82,
+      "avgAudio": 0.71
+    },
+    "resolutionDistribution": {
+      "1080p+": 15,
+      "720p": 5
+    },
+    "durationRange": {
+      "min": 5.2,
+      "max": 298.5,
+      "avg": 45.3
+    }
+  }
+}
 ```
 
 ---
@@ -230,7 +237,7 @@ Process:
 Output: Ranked video list (top 3 selected)
 ```
 
-### Step 3: Video Editing
+### Step 3: Video Editing (Coming Soon)
 ```
 Input: Top 3 videos + brand guidelines
     ↓
@@ -238,12 +245,11 @@ Process:
   - Extract best segments
   - Generate Intro/Outro (AI-powered)
   - Apply branding (logo, watermark, colors)
-  - Color correction (optional)
     ↓
 Output: 3 branded, edited videos
 ```
 
-### Step 4: Version Generation
+### Step 4: Version Generation (Coming Soon)
 ```
 Input: 3 edited videos
     ↓
@@ -255,7 +261,7 @@ Process:
 Output: 9 video files (3 videos × 3 versions)
 ```
 
-### Step 5: Publishing
+### Step 5: Publishing (Coming Soon)
 ```
 Input: 9 video files
     ↓
@@ -269,12 +275,11 @@ Output:
   - 3 Meta links (Reels, Posts)
   - 3 Google Ads campaign links
   - 3 Twitter/X post links
-  - Performance metrics
 ```
 
 ---
 
-## 🎨 Design Styles
+## 🎨 Design Styles (Coming Soon)
 
 ### Intro/Outro Options
 
@@ -304,35 +309,35 @@ Output:
 
 ---
 
-## 📊 Analysis & Reports
+## 📈 Logging & Monitoring
 
-### Video Analysis Report
-```json
-{
-  "total_videos": 20,
-  "selected_videos": 3,
-  "overall_stats": {
-    "avg_score": 0.78,
-    "max_score": 0.92,
-    "min_score": 0.45
-  },
-  "quality_stats": {
-    "avg_quality": 0.82,
-    "avg_audio": 0.71
-  },
-  "resolution_distribution": {
-    "1080p+": 15,
-    "720p": 5
-  }
-}
+### Log Files
+
+Logs are automatically saved to `logs/` directory:
+- Structured JSON format
+- Timestamps for all events
+- Color-coded console output
+- File persistence
+
+### Log Levels
+
+- 🔍 **debug**: Detailed diagnostic information
+- ℹ️ **info**: General informational messages
+- ✅ **success**: Task completion
+- ⚠️ **warning**: Warning messages
+- ❌ **error**: Error messages
+
+### Example Log Output
+
 ```
-
-### Campaign Tracking
-- Video analysis logs
-- Editing progress
-- Publishing status
-- Platform-specific URLs
-- Performance metrics (coming soon)
+✅ [INFO] 🤖 Agent initialized
+→ [INFO] 📊 Phase 1: Video Analysis
+ℹ️ [INFO] Found videos: 20
+→ [INFO] Analyzing video
+✅ [INFO] Video scored: video_1.mp4
+→ [INFO] 🎯 Phase 2: Video Selection
+✅ [INFO] Task complete: video_selection
+```
 
 ---
 
@@ -340,81 +345,72 @@ Output:
 
 ### Meta (Facebook/Instagram)
 
-```python
-from modules.publisher import MetaPublisher
+```javascript
+import { MetaPublisher } from './src/Publisher.js';
 
-publisher = MetaPublisher(
-    access_token="your_token",
-    business_id="your_business_id"
-)
+const publisher = new MetaPublisher(
+  config.platforms.meta.accessToken,
+  config.platforms.meta.businessId
+);
 
-# Publish to Instagram Reels
-url = publisher.publish_reels(video_path, caption="Your caption")
+// Publish to Instagram Reels
+const url = await publisher.publishReels(videoPath, caption);
 
-# Publish to Facebook Feed
-url = publisher.publish_feed(video_path, caption="Your caption")
+// Publish to Facebook Feed
+const url = await publisher.publishFeed(videoPath, caption);
 ```
 
 ### Google Ads
 
-```python
-from modules.publisher import GoogleAdsPublisher
+```javascript
+import { GoogleAdsPublisher } from './src/Publisher.js';
 
-publisher = GoogleAdsPublisher(
-    developer_token="your_token",
-    customer_id="your_customer_id"
-)
+const publisher = new GoogleAdsPublisher(
+  config.platforms.googleAds.developerToken,
+  config.platforms.googleAds.customerId
+);
 
-# Upload video asset
-asset_id = publisher.upload_video(video_path)
+// Upload video asset
+const assetId = await publisher.uploadVideo(videoPath);
 
-# Create video ad
-campaign = publisher.create_video_ad(asset_id, campaign_name="Spring Sale")
+// Create video ad
+const campaign = await publisher.createVideoAd(assetId, campaignName);
 ```
 
 ### Twitter/X
 
-```python
-from modules.publisher import TwitterPublisher
+```javascript
+import { TwitterPublisher } from './src/Publisher.js';
 
-publisher = TwitterPublisher(bearer_token="your_token")
+const publisher = new TwitterPublisher(
+  config.platforms.twitter.bearerToken
+);
 
-# Tweet with video
-tweet_id = publisher.post_video(video_path, text="Check out our new video!")
+// Tweet with video
+const tweetId = await publisher.postVideo(videoPath, text);
 ```
 
 ---
 
-## 📝 Logging
+## 🧪 Testing
 
-All operations are logged to `logs/` directory:
-- Timestamp
-- Operation type
-- Status (INFO, SUCCESS, WARNING, ERROR)
-- Relevant data/errors
+### Run Tests
 
-```
-✅ [SUCCESS] Task complete: video_analysis
-  - Videos analyzed: 20
-  - Selected: 3
-  - Avg score: 0.78
-
-⚠️  [WARNING] Not enough videos meet quality threshold
-  - Threshold: 0.60
-  - Available: 18
+```bash
+npm test
 ```
 
----
+### Test Video Analysis
 
-## 🚨 Error Handling
+```bash
+node src/index.js --mode analyze --input-dir ./test-videos --campaign-id test-001
+```
 
-The agent handles common issues:
-- ✅ Missing video files
-- ✅ API failures (with retry logic)
-- ✅ Insufficient disk space
-- ✅ Invalid API credentials
-- ✅ Network timeouts
-- ✅ Format compatibility issues
+### Check Logs
+
+```bash
+cat logs/campaign_*.log
+```
 
 ---
 
@@ -422,14 +418,115 @@ The agent handles common issues:
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| moviepy | 1.0.3 | Video editing |
-| opencv-python | 4.8 | Video processing |
-| ffmpeg-python | 0.2 | FFmpeg integration |
-| anthropic | 0.7+ | Claude API |
-| requests | 2.31 | HTTP requests |
-| facebook-sdk | 3.0 | Meta API |
-| google-ads | 21.0 | Google Ads API |
-| tweepy | 4.14 | Twitter API |
+| axios | 1.6.0 | HTTP requests |
+| dotenv | 16.3.1 | Environment variables |
+| express | 4.18.2 | Web server (optional) |
+| fluent-ffmpeg | 2.1.2 | FFmpeg wrapper |
+| pino | 8.15.1 | Structured logging |
+| pino-pretty | 10.2.0 | Log formatting |
+| sharp | 0.32.6 | Image processing |
+| uuid | 9.0.0 | ID generation |
+| yargs | 17.7.2 | CLI parsing |
+
+---
+
+## 🚨 Error Handling
+
+The agent handles common issues:
+- ✅ Missing video files
+- ✅ Invalid API credentials
+- ✅ Insufficient disk space
+- ✅ Network timeouts
+- ✅ Format compatibility issues
+- ✅ Permission errors
+
+---
+
+## 📞 Troubleshooting
+
+### FFmpeg Not Found
+
+```bash
+# macOS
+brew install ffmpeg
+
+# Ubuntu/Debian
+sudo apt-get install ffmpeg
+
+# Windows
+choco install ffmpeg
+```
+
+### Out of Disk Space
+
+```bash
+rm -rf output/* temp/*
+```
+
+### API Authentication Errors
+
+- Verify all tokens in `.env`
+- Check token expiration dates
+- Ensure OAuth scopes are correct
+- Re-authenticate if needed
+
+### Video Encoding Issues
+
+- Ensure input videos are in supported formats (MP4, MOV, AVI)
+- Check that resolution is within limits (720p - 4K)
+- Verify audio codec is compatible
+
+---
+
+## 🎯 Advanced Usage
+
+### Custom Configuration
+
+```javascript
+import config from './src/config.js';
+
+// Access configuration
+console.log(config.brand.name);
+console.log(config.videoAnalysis.minQualityScore);
+console.log(config.paths.output);
+```
+
+### Campaign Tracking
+
+```javascript
+import { CampaignTracker } from './src/logger.js';
+
+const tracker = new CampaignTracker('my-campaign');
+tracker.addSelectedVideo('video.mp4');
+tracker.addPublishedLink('meta', 'https://instagram.com/p/...');
+
+console.log(tracker.toJSON());
+```
+
+### Custom Analysis
+
+```javascript
+import { VideoAnalyzer } from './src/VideoAnalyzer.js';
+
+const analyzer = new VideoAnalyzer();
+const videos = await analyzer.analyzeDirectory('./videos');
+
+// Access raw data
+videos.forEach(video => {
+  console.log(`${video.filename}: ${video.overallScore}`);
+});
+```
+
+---
+
+## 🚀 Performance
+
+Typical processing times (for 20 videos):
+- **Analysis**: 2-3 minutes
+- **Editing**: 10-15 minutes (depends on video length)
+- **Version Generation**: 5-10 minutes
+- **Publishing**: 3-5 minutes
+- **Total**: ~30 minutes
 
 ---
 
@@ -443,122 +540,81 @@ This agent is designed to work with Claude API for:
 
 ---
 
-## 📞 Troubleshooting
+## 📝 Command Line Options
 
-### FFmpeg Not Found
 ```bash
-# macOS
-brew install ffmpeg
+# Analyze mode
+node src/index.js --mode analyze --input-dir ./videos
 
-# Ubuntu/Debian
-sudo apt-get install ffmpeg
+# Full pipeline
+node src/index.js --mode full --input-dir ./videos --campaign-id my-campaign
 
-# Windows
-choco install ffmpeg
-```
+# Custom campaign ID
+node src/index.js --mode full --campaign-id custom-id-123
 
-### API Authentication Errors
-- Verify all tokens in `.env`
-- Check token expiration dates
-- Ensure OAuth scopes are correct
-- Re-authenticate if needed
+# Disable auto-publish
+node src/index.js --mode full --no-publish
 
-### Out of Disk Space
-```bash
-# Clean up output directory
-rm -rf agents/video-campaigns/output/*
-
-# Check disk space
-df -h
-```
-
-### Video Encoding Issues
-- Ensure input videos are in supported formats (MP4, MOV, AVI)
-- Check that resolution is within limits (720p - 4K)
-- Verify audio codec is compatible
-
----
-
-## 🎯 Advanced Usage
-
-### Custom Brand Identity
-```python
-from utils.config import BrandingConfig
-
-brand = BrandingConfig(
-    brand_name="My Brand",
-    primary_color="#FF0000",
-    secondary_color="#00FF00",
-    logo_path="./logo.png",
-    cta_text="Shop Now"
-)
-```
-
-### Selective Publishing
-```python
-# Only publish to specific platforms
-publisher = Publisher()
-for video in videos:
-    if publish_to_meta:
-        publisher.publish_to_meta(video)
-    if publish_to_google:
-        publisher.publish_to_google_ads(video)
-    if publish_to_twitter:
-        publisher.publish_to_twitter(video)
-```
-
-### Custom Scoring
-```python
-# Override default scoring algorithm
-class CustomAnalyzer(VideoAnalyzer):
-    def _calculate_quality_score(self, metadata):
-        # Your custom logic here
-        pass
-
-analyzer = CustomAnalyzer()
+# Development mode (with watch)
+npm run dev -- --mode analyze --input-dir ./videos
 ```
 
 ---
 
-## 📈 Performance Metrics
+## 📚 Next Steps
 
-Typical processing times (for 20 videos):
-- **Analysis**: 2-3 minutes
-- **Editing**: 10-15 minutes (depending on video length)
-- **Version Generation**: 5-10 minutes
-- **Publishing**: 3-5 minutes
-- **Total**: ~30 minutes
+### Phase 2: Video Editing
+- [ ] Implement `VideoEditor` class
+- [ ] Add intro/outro generation
+- [ ] Implement watermark/logo application
+- [ ] Color correction pipeline
 
----
+### Phase 3: Design Generation
+- [ ] Integrate Claude Vision API
+- [ ] Implement design template generation
+- [ ] Create Intro/Outro videos
+- [ ] AI-powered branding
 
-## 🚀 Next Steps
+### Phase 4: Version Creation
+- [ ] Implement vertical version (9:16)
+- [ ] Implement square version (1:1)
+- [ ] Implement horizontal version (16:9)
+- [ ] Aspect ratio handling
 
-1. Set up environment variables
-2. Test with sample videos
-3. Configure brand guidelines
-4. Customize templates
-5. Run full pipeline
-6. Monitor logs and metrics
-7. Iterate and optimize
+### Phase 5: Publishing
+- [ ] Integrate Meta Graph API
+- [ ] Integrate Google Ads API
+- [ ] Integrate Twitter API v2
+- [ ] Batch upload with retry logic
+- [ ] Status tracking
+
+### Phase 6: Testing & Optimization
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] Performance optimization
+- [ ] Error recovery strategies
 
 ---
 
 ## 📄 License
 
-This project is part of Point-Market-Agent-. All rights reserved.
+MIT
 
 ---
 
-## 📧 Support
+## 💡 Contributing
 
-For issues or questions:
-1. Check logs in `logs/` directory
-2. Review this README
-3. Consult the AGENT_PLAN.md for architecture details
-4. Create an issue in the repository
+Contributions welcome! Please follow Node.js best practices:
+- Use ES modules (import/export)
+- Add JSDoc comments
+- Follow async/await patterns
+- Use meaningful variable names
+- Write descriptive commit messages
 
 ---
 
-**Created**: 2026-07-29  
 **Version**: 1.0.0-alpha  
-**Status**: 🚧 In Development
+**Status**: 🟡 Video Analysis Complete (Other modules ready for implementation)  
+**Last Updated**: 2026-07-29
+
+Happy coding! 🚀

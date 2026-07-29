@@ -1,0 +1,51 @@
+{
+  "name": "video-editing-campaign-agent",
+  "version": "1.0.0-alpha",
+  "description": "AI-powered video editing and multi-platform campaign automation agent",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "analyze": "node src/cli.js --mode analyze",
+    "edit": "node src/cli.js --mode edit",
+    "publish": "node src/cli.js --mode publish",
+    "pipeline": "node src/cli.js --mode full",
+    "test": "node --test tests/**/*.test.js",
+    "lint": "eslint src/",
+    "format": "prettier --write src/"
+  },
+  "keywords": [
+    "video",
+    "editing",
+    "campaign",
+    "automation",
+    "meta",
+    "facebook",
+    "instagram",
+    "google-ads",
+    "twitter",
+    "ai"
+  ],
+  "author": "Point Market Agent Team",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "fluent-ffmpeg": "^2.1.2",
+    "pino": "^8.15.1",
+    "pino-pretty": "^10.2.0",
+    "sharp": "^0.32.6",
+    "uuid": "^9.0.0",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^8.49.0",
+    "eslint": "^8.49.0",
+    "prettier": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
