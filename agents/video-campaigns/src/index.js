@@ -2,6 +2,7 @@
 
 import { VideoAnalyzer } from './VideoAnalyzer.js';
 import { VideoEditor } from './VideoEditor.js';
+import { DesignGenerator } from './DesignGenerator.js';
 import { logger, CampaignTracker, taskLogger } from './logger.js';
 import { config, validateConfig, getConfigSummary } from './config.js';
 import path from 'path';
@@ -32,6 +33,22 @@ export class VideoEditingAgent {
 
     try {
       const editor = new VideoEditor();
+      const designGen = new DesignGenerator();
+
+      // Phase 0: Generate Design Template
+      logger.info({}, '🎨 Phase 0: Design Template Generation');
+      let brandTemplate = null;
+      try {
+        brandTemplate = await designGen.generateBrandTemplate(
+          config.brand.name,
+          'A professional brand focused on quality video content',
+          'professional'
+        );
+        designGen.saveTemplate(brandTemplate, `${this.campaignId}_brand_template.json`);
+        logger.info({ template: brandTemplate.templateType }, 'Brand template generated');
+      } catch (error) {
+        logger.warn({ error: error.message }, 'Failed to generate brand template, using defaults');
+      }
 
       // Phase 1: Analyze videos
       logger.info({}, '📊 Phase 1: Video Analysis');
@@ -96,9 +113,28 @@ export class VideoEditingAgent {
         }
       }
 
-      // Phase 5: Publish
+      // Phase 5: Generate Marketing Copy
+      logger.info({}, '✍️  Phase 5: Marketing Copy Generation');
+      const marketingCopy = {};
+      try {
+        // Generate copy for each platform
+        const platforms = ['instagram', 'tiktok', 'youtube'];
+        for (const platform of platforms) {
+          marketingCopy[platform] = await designGen.generateMarketingCopy(
+            config.brand.name,
+            'Professional video content',
+            platform
+          );
+          logger.info({ platform }, 'Marketing copy generated');
+        }
+        designGen.saveTemplate(marketingCopy, `${this.campaignId}_marketing_copy.json`);
+      } catch (error) {
+        logger.warn({ error: error.message }, 'Failed to generate marketing copy');
+      }
+
+      // Phase 6: Publish
       if (autoPublish && config.agent.autoPublish) {
-        logger.info({}, '📤 Phase 5: Publishing');
+        logger.info({}, '📤 Phase 6: Publishing');
         // TODO: Implement publisher integration
       }
 
