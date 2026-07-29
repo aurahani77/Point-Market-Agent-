@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 
 import { VideoAnalyzer } from './VideoAnalyzer.js';
+import { VideoEditor } from './VideoEditor.js';
 import { logger, CampaignTracker, taskLogger } from './logger.js';
 import { config, validateConfig, getConfigSummary } from './config.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Import path to make it available in full pipeline method
+import { basename } from 'path';
 
 /**
  * Video Editing & Campaign Automation Agent
@@ -27,6 +31,8 @@ export class VideoEditingAgent {
     taskLogger.start('full_pipeline', { inputDir });
 
     try {
+      const editor = new VideoEditor();
+
       // Phase 1: Analyze videos
       logger.info({}, '📊 Phase 1: Video Analysis');
       const videos = await this.analyzer.analyzeDirectory(inputDir);
@@ -47,15 +53,53 @@ export class VideoEditingAgent {
       const analysisPath = path.resolve(config.paths.output, `${this.campaignId}_analysis.json`);
       this.analyzer.exportAnalysis(analysisPath);
 
-      // TODO: Phase 3: Edit videos
+      // Phase 3: Edit videos
       logger.info({ count: topVideos.length }, '✂️  Phase 3: Video Editing');
+      const editedVideos = [];
+      for (const video of topVideos) {
+        try {
+          // Add intro/outro
+          const withIntroOutro = await editor.addIntroOutro(video.path, 'professional', 'call_to_action');
 
-      // TODO: Phase 4: Create versions
-      logger.info({ versionsPerVideo: config.agent.versionsPerVideo }, '🎬 Phase 4: Version Generation');
+          // Apply branding
+          const branded = await editor.applyBranding(withIntroOutro, true, true);
 
-      // TODO: Phase 5: Publish
+          // Apply color correction
+          const corrected = await editor.applyColorCorrection(branded, 'vibrant');
+
+          editedVideos.push(corrected);
+          this.tracker.addEditedVideo(video.filename);
+          logger.info({ video: video.filename }, 'Video edited successfully');
+        } catch (error) {
+          logger.error({ video: video.filename, error: error.message }, 'Failed to edit video');
+          this.tracker.addError(`edit_${video.filename}`, error.message);
+        }
+      }
+
+      // Phase 4: Create versions
+      logger.info({ versionsPerVideo: config.agent.versionsPerVideo, count: editedVideos.length }, '🎬 Phase 4: Version Generation');
+      const allVersions = [];
+      for (const videoPath of editedVideos) {
+        try {
+          const vertical = await editor.createVerticalVersion(videoPath);
+          const square = await editor.createSquareVersion(videoPath);
+          const horizontal = await editor.createHorizontalVersion(videoPath);
+
+          allVersions.push({ vertical, square, horizontal });
+          this.tracker.addVersion('vertical');
+          this.tracker.addVersion('square');
+          this.tracker.addVersion('horizontal');
+          logger.info({ video: path.basename(videoPath) }, '3 versions created');
+        } catch (error) {
+          logger.error({ video: videoPath, error: error.message }, 'Failed to create versions');
+          this.tracker.addError(`versions_${videoPath}`, error.message);
+        }
+      }
+
+      // Phase 5: Publish
       if (autoPublish && config.agent.autoPublish) {
         logger.info({}, '📤 Phase 5: Publishing');
+        // TODO: Implement publisher integration
       }
 
       taskLogger.complete('full_pipeline', this.tracker.toJSON());
@@ -65,6 +109,8 @@ export class VideoEditingAgent {
         campaignId: this.campaignId,
         videosAnalyzed: videos.length,
         videosSelected: topVideos.length,
+        videosEdited: editedVideos.length,
+        versionsCreated: allVersions.length * 3,
         analysisFile: analysisPath,
       };
     } catch (error) {
