@@ -3,6 +3,7 @@
 import { VideoAnalyzer } from './VideoAnalyzer.js';
 import { VideoEditor } from './VideoEditor.js';
 import { DesignGenerator } from './DesignGenerator.js';
+import { Publisher } from './Publisher.js';
 import { logger, CampaignTracker, taskLogger } from './logger.js';
 import { config, validateConfig, getConfigSummary } from './config.js';
 import path from 'path';
@@ -135,7 +136,92 @@ export class VideoEditingAgent {
       // Phase 6: Publish
       if (autoPublish && config.agent.autoPublish) {
         logger.info({}, '📤 Phase 6: Publishing');
-        // TODO: Implement publisher integration
+        const publisher = new Publisher();
+
+        for (let i = 0; i < editedVideos.length && i < allVersions.length; i++) {
+          const videoPath = editedVideos[i];
+          const versions = allVersions[i];
+          const videoName = path.basename(videoPath);
+
+          try {
+            // Get marketing copy for this video
+            const verticalCopy = marketingCopy.instagram || {};
+            const platformCopy = marketingCopy.tiktok || {};
+
+            // Publish vertical version (Instagram Reels)
+            if (config.platforms.meta.enabled && versions.vertical) {
+              try {
+                const reelsUrl = await publisher.publishToMeta(
+                  versions.vertical,
+                  verticalCopy.captions?.[0] || 'Check out our latest content!',
+                  'reels'
+                );
+                if (reelsUrl) {
+                  this.tracker.addPublishedLink('meta', reelsUrl);
+                  logger.info({ video: videoName, url: reelsUrl }, 'Published to Instagram Reels');
+                }
+              } catch (error) {
+                logger.error({ video: videoName, error: error.message }, 'Failed to publish to Instagram Reels');
+                this.tracker.addError(`publish_meta_${videoName}`, error.message);
+              }
+            }
+
+            // Publish square version (Instagram Feed)
+            if (config.platforms.meta.enabled && versions.square) {
+              try {
+                const feedUrl = await publisher.publishToMeta(
+                  versions.square,
+                  verticalCopy.captions?.[1] || 'Watch our video!',
+                  'feed'
+                );
+                if (feedUrl) {
+                  this.tracker.addPublishedLink('meta', feedUrl);
+                  logger.info({ video: videoName, url: feedUrl }, 'Published to Instagram Feed');
+                }
+              } catch (error) {
+                logger.error({ video: videoName, error: error.message }, 'Failed to publish to Instagram Feed');
+                this.tracker.addError(`publish_meta_feed_${videoName}`, error.message);
+              }
+            }
+
+            // Publish horizontal version (Google Ads)
+            if (config.platforms.googleAds.enabled && versions.horizontal) {
+              try {
+                const adsUrl = await publisher.publishToGoogleAds(
+                  versions.horizontal,
+                  `${config.brand.name}_Campaign_${i + 1}`
+                );
+                if (adsUrl) {
+                  this.tracker.addPublishedLink('googleAds', adsUrl);
+                  logger.info({ video: videoName, url: adsUrl }, 'Published to Google Ads');
+                }
+              } catch (error) {
+                logger.error({ video: videoName, error: error.message }, 'Failed to publish to Google Ads');
+                this.tracker.addError(`publish_google_ads_${videoName}`, error.message);
+              }
+            }
+
+            // Publish vertical version (Twitter)
+            if (config.platforms.twitter.enabled && versions.vertical) {
+              try {
+                const tweetUrl = await publisher.publishToTwitter(
+                  versions.vertical,
+                  platformCopy.captions?.[0] || `Check out our latest video! 🎥 ${config.brand.name}`
+                );
+                if (tweetUrl) {
+                  this.tracker.addPublishedLink('twitter', tweetUrl);
+                  logger.info({ video: videoName, url: tweetUrl }, 'Published to Twitter');
+                }
+              } catch (error) {
+                logger.error({ video: videoName, error: error.message }, 'Failed to publish to Twitter');
+                this.tracker.addError(`publish_twitter_${videoName}`, error.message);
+              }
+            }
+          } catch (error) {
+            logger.error({ video: videoName, error: error.message }, 'Video publishing phase error');
+            this.tracker.addError(`publish_${videoName}`, error.message);
+          }
+        }
       }
 
       taskLogger.complete('full_pipeline', this.tracker.toJSON());
