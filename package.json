@@ -1,0 +1,23 @@
+{
+  "name": "point-market-agent-",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aurahani77/Point-Market-Agent-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aurahani77/Point-Market-Agent-/issues"
+  },
+  "homepage": "https://github.com/aurahani77/Point-Market-Agent-#readme",
+  "dependencies": {
+    "remotion": "^4.0.516"
+  }
+}
