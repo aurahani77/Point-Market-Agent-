@@ -1,0 +1,32 @@
+{
+  "name": "point-market-agent-remotion",
+  "version": "1.0.0",
+  "description": "Point Market Agent with Remotion video creation capabilities",
+  "main": "index.js",
+  "scripts": {
+    "start": "remotion preview",
+    "build": "remotion render",
+    "dev": "remotion preview",
+    "test": "jest"
+  },
+  "keywords": [
+    "remotion",
+    "video",
+    "react",
+    "point-market",
+    "agent"
+  ],
+  "author": "halashamali77@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "remotion": "^4.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.0.0",
+    "@remotion/cli": "^4.0.0"
+  }
+}

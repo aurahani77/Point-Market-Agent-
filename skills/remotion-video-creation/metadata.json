@@ -1,0 +1,46 @@
+{
+  "name": "remotion-video-creation",
+  "title": "Remotion Video Creation",
+  "description": "Create stunning videos programmatically using React components with Remotion",
+  "category": "video-production",
+  "tags": [
+    "video",
+    "animation",
+    "react",
+    "remotion",
+    "marketing",
+    "content-creation",
+    "dynamic-content",
+    "rendering"
+  ],
+  "author": "Point Market Agent",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "remotion": "^4.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@remotion/cli": "^4.0.0"
+  },
+  "keywords": [
+    "video-creation",
+    "animation",
+    "programmatic-video",
+    "marketing-content",
+    "react-video"
+  ],
+  "use_cases": [
+    "Create marketing videos",
+    "Animate charts and graphs",
+    "Generate social media content",
+    "Build interactive presentations",
+    "Create product demos"
+  ],
+  "status": "active",
+  "last_updated": "2026-08-24",
+  "difficulty": "intermediate"
+}

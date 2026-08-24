@@ -4,3 +4,16 @@ marketing-skills-only/
 marketing-skills-only.zip
 marketing-skills-upload-list.txt
 marketing-skills-complete.zip
+
+# Remotion
+node_modules/
+dist/
+videos/
+.remotion/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+.DS_Store
